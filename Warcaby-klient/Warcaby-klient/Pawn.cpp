@@ -80,7 +80,29 @@ int Pawn::getField(int x, int y)
 			   int dY - koordynat y na którego chcemy po³o¿yæ piona
 */
 
-int Pawn::update(int sX, int sY, int dX, int dY)
+bool Pawn::update(int sX, int sY, int dX, int dY)
 {
-	return 0;
+	int side = pawnMap[sX][sY];
+
+	if (map[dX][dY] == side || pawnMap[dX][dY] != 2 || dX > 7 || dY > 7)
+	{
+		return false;
+	}
+	else
+	{
+		pawnMap[sX][sY] = 2;
+		pawnMap[dX][dY] = 1;
+		return true;
+	}
+
+}
+
+Sprite Pawn::getWhitePawnSprite()
+{
+	return whitePawnSprite;
+}
+
+Sprite Pawn::getBlackPawnSprite()
+{
+	return blackPawnSprite;
 }
