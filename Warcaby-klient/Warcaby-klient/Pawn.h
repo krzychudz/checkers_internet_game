@@ -16,7 +16,10 @@ public:
 	void draw(RenderWindow* wnd);
 
 	int getField(int x, int y);
-	int update(int sX, int sY, int dX, int dY);
+	bool update(int sX, int sY, int dX, int dY);
+
+	Sprite getWhitePawnSprite();
+	Sprite getBlackPawnSprite();
 
 protected:
 	Texture whitePawnTexture;			//Textura bia³ego piona
@@ -25,7 +28,7 @@ protected:
 	Sprite blackPawnSprite;				//Sprite czarnego piona
 
 	int pawnMap[8][8] =					//Reprezantacja pionow na planszy
-	{									// 0 - Pion czarny 1 - Pion bialy 2 - Pole puste
+	{									// 0 - Pion czarny 1 - Pion bialy 2 - Pole puste 3 - Damka czarna 4 - Damka biala
 		{0,2,0,2,0,2,0,2},
 		{2,0,2,0,2,0,2,0},
 		{0,2,0,2,0,2,0,2},
@@ -33,7 +36,19 @@ protected:
 		{2,2,2,2,2,2,2,2},
 		{1,2,1,2,1,2,1,2},
 		{2,1,2,1,2,1,2,1},
-		{1,2,1,2,1,2,1,2},
+		{1,2,1,2,1,2,1,2}
+	};
+
+	int map[8][8] =			// 0 - pole czarne 1 - pole biale
+	{
+		{1,0,1,0,1,0,1,0},
+		{0,1,0,1,0,1,0,1},
+		{1,0,1,0,1,0,1,0},
+		{0,1,0,1,0,1,0,1},
+		{1,0,1,0,1,0,1,0},
+		{0,1,0,1,0,1,0,1},
+		{1,0,1,0,1,0,1,0},
+		{0,1,0,1,0,1,0,1}
 	};
 
 
