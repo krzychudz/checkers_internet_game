@@ -28,15 +28,15 @@ protected:
 	Sprite blackPawnSprite;				//Sprite czarnego piona
 
 	int pawnMap[8][8] =					//Reprezantacja pionow na planszy
-	{									// 0 - Pion czarny 1 - Pion bialy 2 - Pole puste 3 - Damka czarna 4 - Damka biala
+	{									// 0 - Pion czarny 1 - damka czarna 2 - Pole puste 3 - Pion bialy 4 - Damka biala
 		{0,2,0,2,0,2,0,2},
 		{2,0,2,0,2,0,2,0},
 		{0,2,0,2,0,2,0,2},
 		{2,2,2,2,2,2,2,2},
 		{2,2,2,2,2,2,2,2},
-		{1,2,1,2,1,2,1,2},
-		{2,1,2,1,2,1,2,1},
-		{1,2,1,2,1,2,1,2}
+		{3,2,3,2,3,2,3,2},
+		{2,3,2,3,2,3,2,3},
+		{3,2,3,2,3,2,3,2}
 	};
 
 	int map[8][8] =			// 0 - pole czarne 1 - pole biale

@@ -47,7 +47,7 @@ void Pawn::draw(RenderWindow *wnd)
 				blackPawnSprite.setPosition(j * PAWN_WIDTH, i * PAWN_HEIGHT);
 				wnd->draw(blackPawnSprite);
 			}
-			else if (pawnMap[i][j] == 1)
+			else if (pawnMap[i][j] == 3)
 			{
 				whitePawnSprite.setPosition(j * PAWN_WIDTH, i * PAWN_HEIGHT);
 				wnd->draw(whitePawnSprite);
@@ -91,7 +91,10 @@ bool Pawn::update(int sX, int sY, int dX, int dY)
 	else
 	{
 		pawnMap[sX][sY] = 2;
-		pawnMap[dX][dY] = 1;
+		if(side == 0)
+			pawnMap[dX][dY] = 0;
+		else if(side == 3)
+			pawnMap[dX][dY] = 3;
 		return true;
 	}
 
