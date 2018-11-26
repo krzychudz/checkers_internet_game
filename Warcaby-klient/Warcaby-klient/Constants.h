@@ -8,7 +8,7 @@ const int FIELD_HEIGHT = 64;
 const int PAWN_WIDTH = 64;
 const int PAWN_HEIGHT = 64;
 
-const std::string SERVER_IP = "192.168.0.28";	//Adres serwera gry
+const std::string SERVER_IP = "192.168.0.30";	//Adres serwera gry
 const int SERVER_PORT = 1234;					//Port pod którym nas³uchuje serwer
 
 enum Turn	
