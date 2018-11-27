@@ -3,6 +3,7 @@ doc
 examples
 .vs
 .vs/
+/.vs
 .suo
 .vs/Warcaby-klient/Browse.VC.db
 .vs/Warcaby-klient/
