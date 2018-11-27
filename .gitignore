@@ -3,3 +3,6 @@ doc
 examples
 .vs
 .vs/
+.suo
+.vs/Warcaby-klient/Browse.VC.db
+.vs/ipch
