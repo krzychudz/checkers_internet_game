@@ -7,7 +7,7 @@
 class PlayState : public GameState
 {
 public:
-	PlayState(Game * game);
+	PlayState(Game * game, int side);
 	~PlayState();
 
 	virtual void draw();
@@ -15,9 +15,13 @@ public:
 	virtual void handleInput();
 
 private:
-	void PauseGame();
+	void pauseGame();
 
-	TcpSocket socket;
+
+
+	Text sideText;
+	Text turnText;
+	Font font;
 
 	char buf[64];
 	size_t t;
@@ -45,7 +49,8 @@ private:
 
 	bool selected = false;
 	bool sendData = false;
-
+	bool gameOverLose = false;
+	bool gameOverWin = false;
 
 };
 

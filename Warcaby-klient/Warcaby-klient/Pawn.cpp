@@ -336,6 +336,49 @@ bool Pawn::checkSkew(int sX, int sY, int dX, int dY, int lenght)
 }
 
 /*
+	Metoda klasy Pawn sprawdzaj¹ca czy gracz przegral
+	Parametry:
+			int side - strona
+	Return:
+		   bool - True - Gracz przegral
+		   bool - False - Gracz ciagle moze grac
+*/
+
+
+bool Pawn::isLose(int side)
+{
+	int pawnCounter = 0;
+
+	if (side == white)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				if (pawnMap[i][j] == 3 || pawnMap[i][j] == 4)
+					pawnCounter++;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				if (pawnMap[i][j] == 0 || pawnMap[i][j] == 1)
+					pawnCounter++;
+			}
+		}
+	}
+
+	if (pawnCounter == 0)
+		return true;
+	else
+		return false;
+}
+
+/*
 	Metoda klasy Pawn sprawdzaj¹ca czy gracz ma obowi¹zkowe bicia
 	Parametry:
 			int side - strona

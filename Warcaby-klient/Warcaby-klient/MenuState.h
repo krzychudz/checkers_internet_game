@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 #include "GameState.h"
 
 class MenuState : public GameState
@@ -20,6 +21,7 @@ private:
 	Text newGame;
 	Text exit;
 	
+	int menuPointer = 0; // Wskaznik pozycji w menu
 
 };
 

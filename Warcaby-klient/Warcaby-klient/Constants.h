@@ -1,4 +1,6 @@
 #pragma once
+#include <SFML/Network.hpp>
+
 const int WINDOW_WIDTH = 800;		
 const int WINDOW_HEIGHT = 512;		
 
@@ -10,6 +12,9 @@ const int PAWN_HEIGHT = 64;
 
 const std::string SERVER_IP = "192.168.0.30";	//Adres serwera gry
 const int SERVER_PORT = 1234;					//Port pod którym nas³uchuje serwer
+
+//TcpSocket * socketwsk;
+
 
 enum Turn	
 {

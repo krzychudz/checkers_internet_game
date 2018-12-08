@@ -1,10 +1,32 @@
 #include "pch.h"
 #include "PlayState.h"
 #include "MenuState.h"
+#include "GameOverState.h"
 
-PlayState::PlayState(Game * game)
+PlayState::PlayState(Game * game, int side)
 {
 	this->game = game;
+	game->socket.setBlocking(false);
+	this->side = side;
+
+	font.loadFromFile("Fonts/arial.ttf");
+	
+	sideText.setOrigin(sideText.getLocalBounds().width / 2.0f, sideText.getLocalBounds().height / 2.0f);
+	sideText.setCharacterSize(25);
+	sideText.setFillColor(Color::White);
+	sideText.setFont(font);
+
+	if(side == black)
+		sideText.setString("Black");
+	else
+		sideText.setString("White");
+
+	turnText.setOrigin(sideText.getLocalBounds().width / 2.0f, sideText.getLocalBounds().height / 2.0f);
+	turnText.setCharacterSize(25);
+	turnText.setFillColor(Color::White);
+	turnText.setFont(font);
+	turnText.setString("Your Turn");
+	turnText.setPosition(650, 150);
 }
 
 
@@ -14,27 +36,46 @@ PlayState::~PlayState()
 
 void PlayState::draw()
 {
+
+	if (isTurn == side)
+		game->window.draw(turnText);
+	
+	sideText.setPosition(650, 100);
+	game->window.draw(sideText);
+
 	map.draw(&game->window);
 	pawnMap.draw(&game->window);
 }
 
 void PlayState::update()
 {
+	if (gameOverWin && !sendData)	//Wygrana gracza
+	{
+		game->socket.disconnect();
+		game->pushState(new GameOverState(game,true));
+	}
+
+	if (gameOverLose && !sendData) //Przegrana gracza
+	{
+		game->socket.disconnect();
+		game->pushState(new GameOverState(game, false));
+	}
 
 	if (sendData)
 	{
-		if (socket.send(moves.c_str(), 65, t) == Socket::Done)
+		if (game->socket.send(moves.c_str(), 65, t) == Socket::Done)
 		{
 			cout << "Socket sent a data: " << t << endl;
 			cout << pawnMap.getMap() << endl;
 			sendData = false;
+
 		}
 
 	}
 
 	if (isTurn != side && !sendData)
 	{
-		if (socket.receive(buf, 65, t) != Socket::Done)
+		if (game->socket.receive(buf, 65, t) != Socket::Done)
 		{
 			cout << buf[0] << endl;
 			if (buf[0] == 'b')
@@ -49,13 +90,19 @@ void PlayState::update()
 				memset(buf, 65, 5);
 				isTurn = white;
 			}
+			if (buf[0] == 'L')
+			{
+				pawnMap.setMap(buf);
+				memset(buf, 65, 5);
+				gameOverLose = true;
+			}
+		
 		}
 	}
 }
 
 void PlayState::handleInput()
 {
-	
 	sf::Event event;
 	
 	while (game->window.pollEvent(event))
@@ -66,7 +113,7 @@ void PlayState::handleInput()
 		if (event.type == Event::KeyReleased)
 		{
 			if (event.key.code == sf::Keyboard::Escape)
-				PauseGame();
+				pauseGame();
 		}
 
 		if (event.type == Event::MouseButtonReleased)
@@ -89,10 +136,27 @@ void PlayState::handleInput()
 
 				if (pawnMap.update(sourceX, sourceY, destX, destY))
 				{
+
 					if (side == white)
-						moves = "b" + pawnMap.getMap();
+					{
+						if (pawnMap.isLose(black))
+						{
+							moves = "L" + pawnMap.getMap();
+							gameOverWin = true;
+						}
+						else
+							moves = "b" + pawnMap.getMap();
+					}
 					else
-						moves = "w" + pawnMap.getMap();
+					{
+						if (pawnMap.isLose(white))
+						{
+							moves = "L" + pawnMap.getMap();
+							gameOverWin = true;
+						}
+						else
+							moves = "w" + pawnMap.getMap();
+					}
 
 
 					sendData = true;
@@ -117,7 +181,8 @@ void PlayState::handleInput()
 	
 }
 
-void PlayState::PauseGame()
+void PlayState::pauseGame()
 {
 	game->pushState(new MenuState(game));
 }
+

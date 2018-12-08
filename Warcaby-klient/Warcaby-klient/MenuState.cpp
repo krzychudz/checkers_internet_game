@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "MenuState.h"
 #include "GameState.h"
-#include "PlayState.h"
+#include "PreGameState.h"
 
 
 MenuState::MenuState(Game * game)
@@ -29,14 +29,15 @@ MenuState::MenuState(Game * game)
 	exit.setFillColor(Color::White);
 	exit.setFont(font);
 
-}
-
-void MenuState::draw()
-{
 	title.setPosition(WINDOW_WIDTH / 2.0f - title.getLocalBounds().width / 2.0f, 50);
 	newGame.setPosition(WINDOW_WIDTH / 2.0f - newGame.getLocalBounds().width / 2.0f, 200);
 	exit.setPosition(WINDOW_WIDTH / 2.0f - exit.getLocalBounds().width / 2.0f, 300);
 
+
+}
+
+void MenuState::draw()
+{
 
 	game->window.draw(title);
 	game->window.draw(newGame);
@@ -46,6 +47,19 @@ void MenuState::draw()
 
 void MenuState::update()
 {
+	if (menuPointer == 0)
+	{
+		newGame.setFillColor(Color::Red);
+		exit.setFillColor(Color::White);
+	}
+	else
+	{
+		newGame.setFillColor(Color::White);
+		exit.setFillColor(Color::Red);
+	}
+
+
+
 }
 
 void MenuState::handleInput()
@@ -64,8 +78,25 @@ void MenuState::handleInput()
 			case sf::Event::KeyPressed:
 				if (event.key.code == sf::Keyboard::Escape)
 					game->window.close();
-				else if (event.key.code == sf::Keyboard::Return)
-					loadgame();
+				else if (event.key.code == sf::Keyboard::Up) {
+					menuPointer++;
+					if (menuPointer == 2)
+						menuPointer = 0;
+				}
+				else if (event.key.code == sf::Keyboard::Down) {
+					menuPointer--;
+					if (menuPointer == -1)
+						menuPointer = 1;
+				}
+				else if (event.key.code == sf::Keyboard::Return) {
+
+					if (menuPointer == 0)
+						loadgame();
+					else
+						game->window.close();
+
+				}
+			
 				break;
 		}
 	}
@@ -74,7 +105,7 @@ void MenuState::handleInput()
 
 void MenuState::loadgame()
 {
-	game->pushState(new PlayState(game));
+	game->pushState(new PreGameState(game));
 }
 
 

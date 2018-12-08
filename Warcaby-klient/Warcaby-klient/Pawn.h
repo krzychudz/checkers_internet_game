@@ -24,6 +24,7 @@ public:
 	void setMap(char map[]);
 	bool checkArrayCorrectness(int x1, int x2, int x3, int x4);
 	bool checkSkew(int sX, int sY, int dX, int dY, int lenght);
+	bool isLose(int side);
 
 	Sprite getWhitePawnSprite();
 	Sprite getBlackPawnSprite();

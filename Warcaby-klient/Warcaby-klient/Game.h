@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "GameState.h"
+#include "Constants.h"
 
 using namespace sf;
 
@@ -21,6 +22,8 @@ public:
 	void gameLoop();
 
 	RenderWindow window;
+
+	TcpSocket socket;
 
 protected:
 	std::vector<GameState*> states;
