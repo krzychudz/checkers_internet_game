@@ -2,11 +2,11 @@
 #include "PlayState.h"
 #include "MenuState.h"
 #include "GameOverState.h"
+#include <Thread>
 
 PlayState::PlayState(Game * game, int side)
 {
 	this->game = game;
-	game->socket.setBlocking(false);
 	this->side = side;
 
 	font.loadFromFile("Fonts/arial.ttf");
@@ -16,8 +16,11 @@ PlayState::PlayState(Game * game, int side)
 	sideText.setFillColor(Color::White);
 	sideText.setFont(font);
 
-	if(side == black)
+	if (side == black)
+	{
 		sideText.setString("Black");
+		receive = true;
+	}
 	else
 		sideText.setString("White");
 
@@ -63,41 +66,18 @@ void PlayState::update()
 
 	if (sendData)
 	{
-		if (game->socket.send(moves.c_str(), 65, t) == Socket::Done)
-		{
-			cout << "Socket sent a data: " << t << endl;
-			cout << pawnMap.getMap() << endl;
-			sendData = false;
+		std::thread sendThread(&PlayState::sendDataToServer, this);
+		sendThread.detach();
 
-		}
-
+		sendData = false;
 	}
 
-	if (isTurn != side && !sendData)
+	if (isTurn != side && receive)
 	{
-		if (game->socket.receive(buf, 65, t) != Socket::Done)
-		{
-			cout << buf[0] << endl;
-			if (buf[0] == 'b')
-			{
-				pawnMap.setMap(buf);
-				memset(buf, 65, 5);
-				isTurn = black;
-			}
-			if (buf[0] == 'w')
-			{
-				pawnMap.setMap(buf);
-				memset(buf, 65, 5);
-				isTurn = white;
-			}
-			if (buf[0] == 'L')
-			{
-				pawnMap.setMap(buf);
-				memset(buf, 65, 5);
-				gameOverLose = true;
-			}
-		
-		}
+		std::thread receiveThread(&PlayState::receiveData, this);
+		receiveThread.detach();
+
+		receive = false;
 	}
 }
 
@@ -184,5 +164,46 @@ void PlayState::handleInput()
 void PlayState::pauseGame()
 {
 	game->pushState(new MenuState(game));
+}
+
+void PlayState::sendDataToServer()
+{
+	sf::Socket::Status status = game->socket.send(moves.c_str(), 65, t);
+
+	if (status == sf::Socket::Done)
+	{
+		receive = true;
+	}
+
+}
+
+void PlayState::receiveData()
+{
+	
+	sf::Socket::Status status = game->socket.receive(buf, 65, t);
+
+	if (status == sf::Socket::Done)
+	{
+		if (buf[0] == 'b')
+		{
+			pawnMap.setMap(buf);
+			memset(buf, 65, 5);
+			isTurn = black;
+		}
+		if (buf[0] == 'w')
+		{
+			pawnMap.setMap(buf);
+			memset(buf, 65, 5);
+			isTurn = white;
+		}
+		if (buf[0] == 'L')
+		{
+			pawnMap.setMap(buf);
+			memset(buf, 65, 5);
+			gameOverLose = true;
+		}
+	}
+	
+
 }
 

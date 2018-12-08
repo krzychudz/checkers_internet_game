@@ -16,7 +16,8 @@ public:
 
 private:
 	void pauseGame();
-
+	void sendDataToServer();
+	void receiveData();
 
 
 	Text sideText;
@@ -49,6 +50,7 @@ private:
 
 	bool selected = false;
 	bool sendData = false;
+	bool receive = false;
 	bool gameOverLose = false;
 	bool gameOverWin = false;
 
