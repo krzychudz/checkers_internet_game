@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "PreGameState.h"
 #include "PlayState.h"
+#include "ServerErrorState.h"
+#include "MenuState.h"
 
 
 
@@ -15,6 +17,8 @@ PreGameState::PreGameState(Game * game)
 	info.setCharacterSize(32);
 	info.setFillColor(Color::White);
 	info.setFont(font);
+
+
 
 	connected = false;
 	runThreadConnect = true;
@@ -89,6 +93,10 @@ void PreGameState::handleInput()
 		case sf::Event::KeyPressed:
 			if (event.key.code == sf::Keyboard::Escape)
 				game->window.close();
+
+			if (event.key.code == sf::Keyboard::Return)
+			{	
+			}
 			break;
 		}
 	}
@@ -102,6 +110,8 @@ void PreGameState::connect()
 	if (status != sf::Socket::Done)
 	{
 		cout << "ERROR: Tcp Socket - connect" << endl;
+		game->pushState(new ServerErrorState(game, "Server connect - ERROR"));
+
 	}
 	else
 	{
@@ -117,7 +127,9 @@ void PreGameState::receiveData()
 
 	sf::Socket::Status status = game->socket.receive(dataBuf, 2, dataSize);
 
-	if (status == sf::Socket::Done)
+	if (status != sf::Socket::Done)
+		game->pushState(new ServerErrorState(game, "Server connect - ERROR"));
+	else
 		isDataReceive = true;
 }
 

@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include "Map.h"
 #include "Pawn.h"
+#include "Button.h"
 
 class PlayState : public GameState
 {
@@ -19,6 +20,7 @@ private:
 	void sendDataToServer();
 	void receiveData();
 
+	Button* surrenderButton;
 
 	Text sideText;
 	Text turnText;
@@ -53,6 +55,8 @@ private:
 	bool receive = false;
 	bool gameOverLose = false;
 	bool gameOverWin = false;
+	bool surrender = false;
+	bool surrenderEnemy = false;
 
 };
 

@@ -2,6 +2,7 @@
 #include "PlayState.h"
 #include "MenuState.h"
 #include "GameOverState.h"
+#include "ServerErrorState.h"
 #include <Thread>
 
 PlayState::PlayState(Game * game, int side)
@@ -30,11 +31,15 @@ PlayState::PlayState(Game * game, int side)
 	turnText.setFont(font);
 	turnText.setString("Your Turn");
 	turnText.setPosition(650, 150);
+
+	surrenderButton = new Button("Poddaj sie!", Vector2f(150, 50), Color::Black);
+	surrenderButton->setPosition(650,350);
 }
 
 
 PlayState::~PlayState()
 {
+	delete surrenderButton;
 }
 
 void PlayState::draw()
@@ -43,6 +48,8 @@ void PlayState::draw()
 	if (isTurn == side)
 		game->window.draw(turnText);
 	
+	surrenderButton->draw(&game->window);
+
 	sideText.setPosition(650, 100);
 	game->window.draw(sideText);
 
@@ -60,11 +67,26 @@ void PlayState::update()
 
 	if (gameOverLose && !sendData) //Przegrana gracza
 	{
-		game->socket.disconnect();
-		game->pushState(new GameOverState(game, false));
+		moves = "Q" + pawnMap.getMap();
+		std::thread sendThread(&PlayState::sendDataToServer, this);
+		sendThread.detach();
 	}
 
-	if (sendData)
+	if (surrender) // Surrender
+	{
+		moves = "S" + pawnMap.getMap();
+		std::thread sendThread(&PlayState::sendDataToServer, this);
+		sendThread.detach();
+	}
+
+	if (surrenderEnemy)
+	{
+		moves = 'Q' + pawnMap.getMap();
+		std::thread sendThread(&PlayState::sendDataToServer, this);
+		sendThread.detach();
+	}
+
+	if (sendData && !gameOverLose && !surrender)
 	{
 		std::thread sendThread(&PlayState::sendDataToServer, this);
 		sendThread.detach();
@@ -72,13 +94,14 @@ void PlayState::update()
 		sendData = false;
 	}
 
-	if (isTurn != side && receive)
+	if (isTurn != side && receive && !gameOverWin && !gameOverLose && !surrender && !surrenderEnemy)
 	{
 		std::thread receiveThread(&PlayState::receiveData, this);
 		receiveThread.detach();
 
 		receive = false;
 	}
+
 }
 
 void PlayState::handleInput()
@@ -88,7 +111,20 @@ void PlayState::handleInput()
 	while (game->window.pollEvent(event))
 	{
 		if (event.type == sf::Event::Closed)
-			game->window.close();
+			game->window.close();	
+
+		switch (event.type) // test
+		{
+		case sf::Event::KeyPressed:
+			if (event.key.code == sf::Keyboard::Q)
+			{
+				moves = "PTEST";
+				cout << "send" << endl;
+				std::thread sendThread(&PlayState::sendDataToServer, this);
+				sendThread.detach();
+			}
+			break;
+		}
 
 		if (event.type == Event::KeyReleased)
 		{
@@ -98,6 +134,10 @@ void PlayState::handleInput()
 
 		if (event.type == Event::MouseButtonReleased)
 		{
+
+			if (surrenderButton->isButtonPressed(&game->window))
+				surrender = true;
+
 			if (isTurn == side && pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
 				Mouse::getPosition(game->window).x / PAWN_HEIGHT) == side && !selected)
 			{
@@ -172,14 +212,37 @@ void PlayState::sendDataToServer()
 
 	if (status == sf::Socket::Done)
 	{
+		if (moves[0] == 'Q')
+		{
+			if (!surrenderEnemy)
+			{
+				game->socket.disconnect();
+				game->pushState(new GameOverState(game, false));
+			}
+			else
+			{
+				game->socket.disconnect();
+				game->pushState(new GameOverState(game, true));
+			}
+		}
+		if (moves[0] == 'S')
+		{
+			game->socket.disconnect();
+			game->pushState(new GameOverState(game, false));	
+		}
 		receive = true;
 	}
+	else if (status == sf::Socket::Disconnected)
+		game->pushState(new ServerErrorState(game, "Server connect - ERROR"));
+	else if (status == sf::Socket::Error)
+		game->pushState(new ServerErrorState(game, "Server connect - ERROR"));
+	else
+		game->pushState(new ServerErrorState(game, "Server connect - ERROR"));
 
 }
 
 void PlayState::receiveData()
 {
-	
 	sf::Socket::Status status = game->socket.receive(buf, 65, t);
 
 	if (status == sf::Socket::Done)
@@ -202,8 +265,23 @@ void PlayState::receiveData()
 			memset(buf, 65, 5);
 			gameOverLose = true;
 		}
+
+		if (buf[0] == 'S')
+		{
+			pawnMap.setMap(buf);
+			memset(buf, 65, 5);
+			surrenderEnemy = true;
+		}
 	}
-	
+	else if (status == sf::Socket::Disconnected && !surrender)
+		game->pushState(new ServerErrorState(game, "Server connect - ERROR"));
+	else if (status == sf::Socket::Error && !surrender)
+		game->pushState(new ServerErrorState(game, "Server connect - ERROR"));	
+	else
+	{
+		if(!surrender)
+			game->pushState(new ServerErrorState(game, "Server connect - ERROR"));
+	}
 
 }
 

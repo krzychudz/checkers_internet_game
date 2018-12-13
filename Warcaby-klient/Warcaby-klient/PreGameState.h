@@ -38,5 +38,6 @@ private:
 	char dataBuf[64];
 	size_t dataSize;
 
+
 };
 
