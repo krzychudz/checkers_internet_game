@@ -269,6 +269,8 @@ void Pawn::setMap(char map[])
 {
 	int z = 1;
 	int tmp;
+	
+	cout << "MAP UPDATE: " << endl;
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -276,9 +278,13 @@ void Pawn::setMap(char map[])
 		{
 			tmp = map[z] - '0';
 			pawnMap[i][j] = tmp;
+			cout << tmp;
 			z++;
 		}
+		cout << endl;
 	}
+
+	cout << "MAP UPDATE END" << endl;
 
 }
 

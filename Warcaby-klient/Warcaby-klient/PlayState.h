@@ -26,7 +26,7 @@ private:
 	Text turnText;
 	Font font;
 
-	char buf[64];
+	char buf[66];
 	size_t t;
 
 	int side = 3;				//Zmienna okreœlaj¹ca któr¹ stron¹ gramy, nadawana przez server

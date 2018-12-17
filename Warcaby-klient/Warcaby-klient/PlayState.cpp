@@ -67,23 +67,33 @@ void PlayState::update()
 
 	if (gameOverLose && !sendData) //Przegrana gracza
 	{
+		/*
 		moves = "Q" + pawnMap.getMap();
 		std::thread sendThread(&PlayState::sendDataToServer, this);
 		sendThread.detach();
+		*/
+
+		game->socket.disconnect();
+		game->pushState(new GameOverState(game, false));
 	}
 
 	if (surrender) // Surrender
 	{
-		moves = "S" + pawnMap.getMap();
+		moves = "S" + pawnMap.getMap() + "X";
 		std::thread sendThread(&PlayState::sendDataToServer, this);
 		sendThread.detach();
 	}
 
 	if (surrenderEnemy)
 	{
+		/*
 		moves = 'Q' + pawnMap.getMap();
 		std::thread sendThread(&PlayState::sendDataToServer, this);
 		sendThread.detach();
+		*/
+
+		game->socket.disconnect();
+		game->pushState(new GameOverState(game, true));
 	}
 
 	if (sendData && !gameOverLose && !surrender)
@@ -165,7 +175,8 @@ void PlayState::handleInput()
 							gameOverWin = true;
 						}
 						else
-							moves = "b" + pawnMap.getMap();
+							moves = "b" + pawnMap.getMap() + "X";
+						
 					}
 					else
 					{
@@ -175,7 +186,7 @@ void PlayState::handleInput()
 							gameOverWin = true;
 						}
 						else
-							moves = "w" + pawnMap.getMap();
+							moves = "w" + pawnMap.getMap() + "X";
 					}
 
 
@@ -208,23 +219,11 @@ void PlayState::pauseGame()
 
 void PlayState::sendDataToServer()
 {
-	sf::Socket::Status status = game->socket.send(moves.c_str(), 65, t);
+	sf::Socket::Status status = game->socket.send(moves.c_str(), 66, t);
 
 	if (status == sf::Socket::Done)
 	{
-		if (moves[0] == 'Q')
-		{
-			if (!surrenderEnemy)
-			{
-				game->socket.disconnect();
-				game->pushState(new GameOverState(game, false));
-			}
-			else
-			{
-				game->socket.disconnect();
-				game->pushState(new GameOverState(game, true));
-			}
-		}
+		cout << "SEND: " << moves << endl;
 		if (moves[0] == 'S')
 		{
 			game->socket.disconnect();
@@ -243,33 +242,34 @@ void PlayState::sendDataToServer()
 
 void PlayState::receiveData()
 {
-	sf::Socket::Status status = game->socket.receive(buf, 65, t);
+	sf::Socket::Status status = game->socket.receive(buf, 66, t);
 
 	if (status == sf::Socket::Done)
 	{
+		cout << "BUF: " << buf << endl;
 		if (buf[0] == 'b')
 		{
 			pawnMap.setMap(buf);
-			memset(buf, 65, 5);
+			//memset(buf, '*', 66);
 			isTurn = black;
 		}
 		if (buf[0] == 'w')
 		{
 			pawnMap.setMap(buf);
-			memset(buf, 65, 5);
+			//memset(buf, '*', 66);
 			isTurn = white;
 		}
 		if (buf[0] == 'L')
 		{
 			pawnMap.setMap(buf);
-			memset(buf, 65, 5);
+			//memset(buf, '*', 66);
 			gameOverLose = true;
 		}
 
 		if (buf[0] == 'S')
 		{
 			pawnMap.setMap(buf);
-			memset(buf, 65, 5);
+			//memset(buf, '*', 66);
 			surrenderEnemy = true;
 		}
 	}
