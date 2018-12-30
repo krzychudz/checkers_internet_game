@@ -24,7 +24,13 @@ private:
 
 	Text sideText;
 	Text turnText;
+	Text clockText;
 	Font font;
+
+	Clock clock;
+	Time time;
+
+	int timer = 60;
 
 	char buf[66];
 	size_t t;
@@ -57,6 +63,10 @@ private:
 	bool gameOverWin = false;
 	bool surrender = false;
 	bool surrenderEnemy = false;
+	bool enemyConnError = false;
+	bool nextMove = false;
+
+	int skipMoves = 0;
 
 };
 

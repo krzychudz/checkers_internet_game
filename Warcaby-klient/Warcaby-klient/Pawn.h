@@ -26,6 +26,8 @@ public:
 	bool checkSkew(int sX, int sY, int dX, int dY, int lenght);
 	bool isLose(int side);
 
+	bool checkNextMove();
+
 	Sprite getWhitePawnSprite();
 	Sprite getBlackPawnSprite();
 
@@ -59,6 +61,7 @@ protected:
 		{0,1,0,1,0,1,0,1}
 	};
 
+	bool nextMove = false;
 
 };
 

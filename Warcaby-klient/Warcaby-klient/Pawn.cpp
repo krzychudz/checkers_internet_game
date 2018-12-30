@@ -87,6 +87,8 @@ int Pawn::getField(int x, int y)
 
 bool Pawn::update(int sX, int sY, int dX, int dY)
 {
+	nextMove = false;
+
 	int side = pawnMap[sX][sY];
 	
 	bool update = false;
@@ -101,17 +103,19 @@ bool Pawn::update(int sX, int sY, int dX, int dY)
 		
 		if (side == white)
 		{
-
 			int midX = ceil(abs(sX + dX) / 2);
 			int midY = ceil(abs(sY + dY) / 2);
 
 			if (!checkSkew(sX, sY, dX, dY, 2))
 				return false;
 
-
 			if (pawnMap[midX][midY] == black && pawnMap[dX][dY] == 2)
 			{	
 				updateCapture(sX, sY, midX, midY, dX, dY, side);
+
+				if (checkCapture(side))
+					nextMove = true;
+				
 				return true;
 			}
 			
@@ -128,6 +132,10 @@ bool Pawn::update(int sX, int sY, int dX, int dY)
 			if (pawnMap[midX][midY] == white && pawnMap[dX][dY] == 2)
 			{
 				updateCapture(sX, sY, midX, midY, dX, dY, side);
+
+				if (checkCapture(side))
+					nextMove = true;
+				
 				return true;
 			}
 		}
@@ -136,12 +144,6 @@ bool Pawn::update(int sX, int sY, int dX, int dY)
 	}
 	else   // ruch gdy bicia nie ma
 	{
-		/*
-		if (map[dX][dY] == 1 || pawnMap[dX][dY] != 2 || dX > 7 || dY > 7)
-		{
-			return false;
-		}
-		*/
 
 		if (map[dX][dY] == 1 || pawnMap[dX][dY] != 2)
 			return false;
@@ -149,30 +151,14 @@ bool Pawn::update(int sX, int sY, int dX, int dY)
 		
 		if (side == black)
 		{
-			/*
-			if (sX - dX > 0 || abs(sY - dY) > 1 || abs(sX - dX) > 1)
-			{
-				return false;
-			}
-			*/
-
 			if (sX - dX > 0 || !checkSkew(sX, sY, dX, dY, 1))
-				return false;
-			
+				return false;		
 		}
 
 		if (side == white)
 		{
-			/*
-			if (sX - dX < 0 || abs(sY - dY) > 1 || abs(sX - dX) > 1)
-			{
-				return false;
-			}
-			*/
-
 			if (sX - dX < 0 || !checkSkew(sX, sY, dX, dY, 1))
-				return false;
-			
+				return false;		
 		}
 
 		updateNormalMove(sX, sY, dX, dY, side);
@@ -382,6 +368,11 @@ bool Pawn::isLose(int side)
 		return true;
 	else
 		return false;
+}
+
+bool Pawn::checkNextMove()
+{
+	return nextMove;
 }
 
 /*
