@@ -177,10 +177,7 @@ void PlayState::handleInput()
 		case sf::Event::KeyPressed:
 			if (event.key.code == sf::Keyboard::Q)
 			{
-				moves = "PTEST";
-				cout << "send" << endl;
-				std::thread sendThread(&PlayState::sendDataToServer, this);
-				sendThread.detach();
+			
 			}
 			break;
 		}
@@ -197,13 +194,21 @@ void PlayState::handleInput()
 			if (surrenderButton->isButtonPressed(&game->window) && isTurn == side)
 				surrender = true;
 
-			if (isTurn == side && pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
-				Mouse::getPosition(game->window).x / PAWN_HEIGHT) == side && !selected)
+			if(pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
+				Mouse::getPosition(game->window).x / PAWN_HEIGHT == 1 && side == black))
+					king = true;
+
+			if (pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
+				Mouse::getPosition(game->window).x / PAWN_HEIGHT == 4 && side == white))
+					king = true;
+
+			if (isTurn == side && (pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
+				Mouse::getPosition(game->window).x / PAWN_HEIGHT) == side || king) && !selected)
 			{
 				sourceX = (Mouse::getPosition(game->window).y / PAWN_HEIGHT);
 				sourceY = (Mouse::getPosition(game->window).x / PAWN_WIDTH);
 				selected = true;
-
+				king = false;
 			}
 
 			else if (selected && isTurn == side)
@@ -213,11 +218,14 @@ void PlayState::handleInput()
 
 
 
-				if (pawnMap.update(sourceX, sourceY, destX, destY))
+				if (pawnMap.update(sourceX, sourceY, destX, destY, side))
 				{
 
-					if (!pawnMap.checkNextMove())
+					if (!pawnMap.getNextMove())
 					{
+						
+						pawnMap.updateKingPawn(side);
+
 						if (side == white)
 						{
 							if (pawnMap.isLose(black))

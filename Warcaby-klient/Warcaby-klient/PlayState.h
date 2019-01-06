@@ -65,6 +65,7 @@ private:
 	bool surrenderEnemy = false;
 	bool enemyConnError = false;
 	bool nextMove = false;
+	bool king = false;
 
 	int skipMoves = 0;
 

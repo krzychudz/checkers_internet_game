@@ -24,6 +24,26 @@ Pawn::Pawn()
 		blackPawnSprite.setTexture(blackPawnTexture);
 	}
 
+	if (!blackPawnTextureD.loadFromFile("Image/blackPawnD.png"))
+	{
+		cout << "Error: load image from file - PawnD " << endl;
+	}
+	else
+	{
+		blackPawnSpriteD.setTexture(blackPawnTextureD);
+	}
+
+	if (!whitePawnTextureD.loadFromFile("Image/whitePawnD.png"))
+	{
+		cout << "Error: load image from file - PawnD " << endl;
+	}
+	else
+	{
+		whitePawnSpriteD.setTexture(whitePawnTextureD);
+	}
+
+
+
 }
 
 
@@ -53,6 +73,16 @@ void Pawn::draw(RenderWindow *wnd)
 				whitePawnSprite.setPosition(j * PAWN_WIDTH, i * PAWN_HEIGHT);
 				wnd->draw(whitePawnSprite);
 			}
+			else if (pawnMap[i][j] == 1)
+			{
+				blackPawnSpriteD.setPosition(j * PAWN_WIDTH, i * PAWN_HEIGHT);
+				wnd->draw(blackPawnSpriteD);
+			}
+			else if (pawnMap[i][j] == 4)
+			{
+				whitePawnSpriteD.setPosition(j * PAWN_WIDTH, i * PAWN_HEIGHT);
+				wnd->draw(whitePawnSpriteD);
+			}
 			else
 				continue;
 			
@@ -74,6 +104,86 @@ int Pawn::getField(int x, int y)
 	return pawnMap[x][y];
 }
 
+Vector3i Pawn::countEnemyPawn(int side, int sX, int sY, int dX, int dY)
+{
+	Vector3i data;
+	data.x = data.y = data.z = 0;
+
+	int counter = 0;
+	int iX, iY;
+	iX = 0;
+	iY = 0;
+
+	if (sX > dX)
+		iX = -1;
+	if (sX < dX)
+		iX = 1;
+
+	if (sY > dY)
+		iY = -1;
+	if (sY < dY)
+		iY = 1;
+
+	if (sX == dX)
+	{
+		data.x = -2;
+		return data;
+	}
+
+	if(sY == dY)
+	{
+		data.x = -2;
+		return data;
+	}
+
+
+	for (int i = 0; i < 8; i++)
+	{
+		sX = sX + iX;
+		sY = sY + iY;
+
+		if (sX == dX && sY == dY)
+			return data;
+
+			if (side == white)
+			{
+				if (pawnMap[sX][sY] == 0 || pawnMap[sX][sY] == 1)
+				{
+					counter++;
+					data.x = counter;
+					data.y = sX;
+					data.z = sY;
+				}
+				if (pawnMap[sX][sY] == 3 || pawnMap[sX][sY] == 4)
+				{
+					data.x = -2;
+					return data;
+				}
+			}
+			if (side == black)
+			{
+				if (pawnMap[sX][sY] == 3 || pawnMap[sX][sY] == 4)
+				{
+					counter++;
+					data.x = counter;
+					data.y = sX;
+					data.z = sY;
+				}
+				if (pawnMap[sX][sY] == 0 || pawnMap[sX][sY] == 1)
+				{
+					data.x = -2;
+					return data;
+				}
+			}
+		
+		
+	}
+
+	data.x = -1;
+
+	return data;
+}
+
 /*
 	Metoda klasy Pawn sprawdzaj¹ca poprawnoœæ ruchu i aktualizuj¹ca tablicê pionów
 	Parametry: int sX - koordynat x z którego bierzemy piona
@@ -85,87 +195,163 @@ int Pawn::getField(int x, int y)
 			   bool - False - ruch niepoprawny
 */
 
-bool Pawn::update(int sX, int sY, int dX, int dY)
+bool Pawn::update(int sX, int sY, int dX, int dY, int side)
 {
 	nextMove = false;
 
-	int side = pawnMap[sX][sY];
-	
+	if (sX == dX && sY == dY)
+		return false;
+
 	bool update = false;
 
 	if (map[dX][dY] == 1 || !checkArrayCorrectness(dX, dY, 2, 2))
 		return false;
-	
 
-	if (checkCapture(side))						// Ruch gdy trzeba wykonac bicie
+
+	cout << "SIDE: " << side << endl;
+
+	if (checkCapture(side) || checkCaptureKing(side))						// Ruch gdy trzeba wykonac bicie
 	{
-		cout << "Musisz wykonac bicie" << endl;
-		
-		if (side == white)
+
+		if ((pawnMap[sX][sY] == 0 || pawnMap[sX][sY] == 3)) // Zwyk³e piony
 		{
-			int midX = ceil(abs(sX + dX) / 2);
-			int midY = ceil(abs(sY + dY) / 2);
-
-			if (!checkSkew(sX, sY, dX, dY, 2))
-				return false;
-
-			if (pawnMap[midX][midY] == black && pawnMap[dX][dY] == 2)
-			{	
-				updateCapture(sX, sY, midX, midY, dX, dY, side);
-
-				if (checkCapture(side))
-					nextMove = true;
-				
-				return true;
-			}
-			
-		}
-
-		else
-		{
-			int midX = ceil(fabs(sX + dX) / 2);
-			int midY = ceil(fabs(sY + dY) / 2);
-
-			if (!checkSkew(sX, sY, dX, dY, 2))
-				return false;
-
-			if (pawnMap[midX][midY] == white && pawnMap[dX][dY] == 2)
+			if (side == white)
 			{
-				updateCapture(sX, sY, midX, midY, dX, dY, side);
+				int midX = ceil(abs(sX + dX) / 2);
+				int midY = ceil(abs(sY + dY) / 2);
 
-				if (checkCapture(side))
-					nextMove = true;
-				
-				return true;
+				if (!checkSkew(sX, sY, dX, dY, 2))
+					return false;
+
+				if ((pawnMap[midX][midY] == black || pawnMap[midX][midY] == 1) && pawnMap[dX][dY] == 2)
+				{
+					updateCapture(sX, sY, midX, midY, dX, dY, side, false);
+
+					/*
+					if (checkCapture(side))
+						nextMove = true;*/
+
+					if (checkNextMove(side, dX, dY))
+						nextMove = true;
+
+					return true;
+				}
+
 			}
+			else
+			{
+				int midX = ceil(fabs(sX + dX) / 2);
+				int midY = ceil(fabs(sY + dY) / 2);
+
+				if (!checkSkew(sX, sY, dX, dY, 2))
+					return false;
+
+				if ((pawnMap[midX][midY] == white || pawnMap[midX][midY] == 4) && pawnMap[dX][dY] == 2)
+				{
+					updateCapture(sX, sY, midX, midY, dX, dY, side, false);
+
+					/*
+					if (checkCapture(side))
+						nextMove = true;*/
+
+					if (checkNextMove(side, dX, dY))
+						nextMove = true;
+
+					return true;
+				}
+			}
+
+			return false;
 		}
-		
-		return false;
+
+		else if ((pawnMap[sX][sY] == 1 || pawnMap[sX][sY] == 4))
+		{
+			//damki
+
+			if (side == white)
+			{
+
+				if (countEnemyPawn(white, sX, sY, dX, dY).x == -1) // czy s¹ po skosie
+					return false;
+
+				if (countEnemyPawn(white, sX, sY, dX, dY).x == -2) 
+					return false;
+
+				if (countEnemyPawn(white, sX, sY, dX, dY).x == 1 && pawnMap[dX][dY] == 2)
+				{
+					int midX = countEnemyPawn(white, sX, sY, dX, dY).y;
+					int midY = countEnemyPawn(white, sX, sY, dX, dY).z;
+
+					updateCapture(sX, sY, midX, midY, dX, dY, side, true);
+
+					if (checkNextMoveKing(side, dX, dY))
+						nextMove = true;
+
+					return true;
+				}
+
+			}
+			else
+			{
+				if (countEnemyPawn(black, sX, sY, dX, dY).x == -1)
+					return false;
+
+				if (countEnemyPawn(black, sX, sY, dX, dY).x == -2)
+					return false;
+
+				if (countEnemyPawn(black, sX, sY, dX, dY).x == 1 && pawnMap[dX][dY] == 2)
+				{
+
+					int midX = countEnemyPawn(black, sX, sY, dX, dY).y;
+					int midY = countEnemyPawn(black, sX, sY, dX, dY).z;
+
+					updateCapture(sX, sY, midX, midY, dX, dY, side, true);
+
+					if (checkNextMoveKing(side, dX, dY))
+						nextMove = true;
+
+					return true;
+				}
+
+			}
+
+			return false;
+		}
 	}
+
 	else   // ruch gdy bicia nie ma
 	{
+			if (map[dX][dY] == 1 || pawnMap[dX][dY] != 2)
+				return false;
 
-		if (map[dX][dY] == 1 || pawnMap[dX][dY] != 2)
-			return false;
-		
-		
-		if (side == black)
-		{
-			if (sX - dX > 0 || !checkSkew(sX, sY, dX, dY, 1))
-				return false;		
-		}
+			if (pawnMap[sX][sY] == 0 || pawnMap[sX][sY] == 3) // zykly pion
+			{
+				if (side == black)
+				{
+					if (sX - dX > 0 || !checkSkew(sX, sY, dX, dY, 1))
+						return false;
+				}
 
-		if (side == white)
-		{
-			if (sX - dX < 0 || !checkSkew(sX, sY, dX, dY, 1))
-				return false;		
-		}
+				if (side == white)
+				{
+					if (sX - dX < 0 || !checkSkew(sX, sY, dX, dY, 1))
+						return false;
+				}
 
-		updateNormalMove(sX, sY, dX, dY, side);
-		return true;
+				updateNormalMove(sX, sY, dX, dY, side, false);
+			} 
+
+			else if (pawnMap[sX][sY] == 1 || pawnMap[sX][sY] == 4) // DAMKA
+			{
+				if (countEnemyPawn(side, sX, sY, dX, dY).x == 0)
+					updateNormalMove(sX, sY, dX, dY, side, true);
+				else
+					return false;
+			}
+
+			return true;
 
 	}
-	
 
 }
 
@@ -178,26 +364,27 @@ bool Pawn::update(int sX, int sY, int dX, int dY)
 			   int side - strona, czarne, biale
 */
 
-void Pawn::updateCapture(int sX, int sY,int delX, int delY, int dX, int dY, int side)
+void Pawn::updateCapture(int sX, int sY,int delX, int delY, int dX, int dY, int side, bool d)
 {
-	cout << sX << " " << sY << " " << delX << " " << delY << " " << dX << " " << dY << endl;
 
-
-	pawnMap[sX][sY] = 2;
-	pawnMap[delX][delY] = 2;
-	if (side == black)
-		pawnMap[dX][dY] = 0;
-	else if (side == white)
-		pawnMap[dX][dY] = 3;
-
-	for (int x = 0; x < 8; x++)//debug
+	if (!d)
 	{
-		for (int z = 0; z < 8; z++)
-			cout << pawnMap[x][z] << " ";
-
-		cout << endl;
+		pawnMap[sX][sY] = 2;
+		pawnMap[delX][delY] = 2;
+		if (side == black)
+			pawnMap[dX][dY] = 0;
+		else if (side == white)
+			pawnMap[dX][dY] = 3;
 	}
-
+	else
+	{
+		pawnMap[sX][sY] = 2;
+		pawnMap[delX][delY] = 2;
+		if (side == black)
+			pawnMap[dX][dY] = 1;
+		else if (side == white)
+			pawnMap[dX][dY] = 4;
+	}
 
 }
 
@@ -210,14 +397,24 @@ void Pawn::updateCapture(int sX, int sY,int delX, int delY, int dX, int dY, int 
 			   int side - strona, czarne, biale
 */
 
-void Pawn::updateNormalMove(int sX, int sY, int dX, int dY, int side)
+void Pawn::updateNormalMove(int sX, int sY, int dX, int dY, int side, bool d)
 {
-	pawnMap[sX][sY] = 2;
-	if (side == 0)
-		pawnMap[dX][dY] = 0;
-	else if (side == 3)
-		pawnMap[dX][dY] = 3;
-
+	if (!d)
+	{
+		pawnMap[sX][sY] = 2;
+		if (side == 0)
+			pawnMap[dX][dY] = 0;
+		else if (side == 3)
+			pawnMap[dX][dY] = 3;
+	}
+	else
+	{
+		pawnMap[sX][sY] = 2;
+		if (side == 0)
+			pawnMap[dX][dY] = 1;
+		else if (side == 3)
+			pawnMap[dX][dY] = 4;
+	}
 
 }
 
@@ -370,9 +567,156 @@ bool Pawn::isLose(int side)
 		return false;
 }
 
-bool Pawn::checkNextMove()
+bool Pawn::checkNextMove(int side, int i, int j)
+{
+	if (side == white && pawnMap[i][j] == white)
+	{
+		if ((pawnMap[i - 1][j - 1] == black || pawnMap[i - 1][j - 1] == 1) && pawnMap[i - 2][j - 2] == 2
+			&& checkArrayCorrectness(i - 1, j - 1, i - 2, j - 2))
+		{
+			return true;
+		}
+		if ((pawnMap[i - 1][j + 1] == black || pawnMap[i - 1][j + 1] == 1) && pawnMap[i - 2][j + 2] == 2 && i - 1 >= 0
+			&& checkArrayCorrectness(i - 1, j + 1, i - 2, j + 2))
+		{
+			return true;
+		}
+		if ((pawnMap[i + 1][j + 1] == black || pawnMap[i + 1][j + 1] == 1) && pawnMap[i + 2][j + 2] == 2
+			&& checkArrayCorrectness(i + 1, j + 1, i + 2, j + 2))
+		{
+			return true;
+		}
+		if ((pawnMap[i + 1][j - 1] == black || pawnMap[i + 1][j - 1] == 1) && pawnMap[i + 2][j - 2] == 2
+			&& checkArrayCorrectness(i + 1, j - 1, i + 2, j - 2))
+		{
+			return true;
+		}
+	}
+
+	if (side == black && pawnMap[i][j] == black)
+	{
+
+		if ((pawnMap[i - 1][j - 1] == white || pawnMap[i - 1][j - 1] == 4) && pawnMap[i - 2][j - 2] == 2
+			&& checkArrayCorrectness(i - 1, j - 1, i - 2, j - 2))
+		{
+			return true;
+		}
+		if ((pawnMap[i - 1][j + 1] == white || pawnMap[i - 1][j + 1] == 4) && pawnMap[i - 2][j + 2] == 2
+			&& checkArrayCorrectness(i - 1, j + 1, i - 2, j + 2))
+		{
+			return true;
+		}
+		if ((pawnMap[i + 1][j + 1] == white || pawnMap[i + 1][j + 1] == 4) && pawnMap[i + 2][j + 2] == 2
+			&& checkArrayCorrectness(i + 1, j + 1, i + 2, j + 2))
+		{
+			return true;
+		}
+		if ((pawnMap[i + 1][j - 1] == white || pawnMap[i + 1][j - 1] == 4) && pawnMap[i + 2][j - 2] == 2
+			&& checkArrayCorrectness(i + 1, j - 1, i + 2, j - 2))
+		{
+			return true;
+		}
+
+	}
+
+	return false;
+}
+
+bool Pawn::checkNextMoveKing(int side, int i, int j)
+{
+	if (side == white)
+	{
+		if (pawnMap[i][j] == 4)
+		{
+			for (int x = 1, y = 1; x < 8; x++, y++)
+			{
+				if (countEnemyPawn(white, i, j, i - x, j - y).x == 1 && pawnMap[i - x][j - y] == 2 && countEnemyPawn(white, i, j, i - x, j - y).x != -2
+					&& checkArrayCorrectness(i - x, j - y, 2, 2))
+				{
+					return true;
+				}
+
+				else if (countEnemyPawn(white, i, j, i - x, j + y).x == 1 && pawnMap[i - x][j + y] == 2 && countEnemyPawn(white, i, j, i - x, j + y).x != -2
+					&& checkArrayCorrectness(i - x, j + y, 2, 2))
+				{
+					return true;
+				}
+
+				else if (countEnemyPawn(white, i, j, i + x, j + y).x == 1 && pawnMap[i + x][j + y] == 2 && countEnemyPawn(white, i, j, i + x, j + y).x != -2
+					&& checkArrayCorrectness(i + x, j + y, 2, 2))
+				{
+					return true;
+				}
+
+				else if (countEnemyPawn(white, i, j, i + x, j - y).x == 1 && pawnMap[i + x][j - y] == 2 && countEnemyPawn(white, i, j, i + x, j - y).x != -2
+					&& checkArrayCorrectness(i + x, j - y, 2, 2))
+				{
+					return true;
+				}
+
+			}
+		}
+	}
+
+	else
+	{
+		if (pawnMap[i][j] == 1)
+		{
+
+			for (int x = 1, y = 1; x < 8; x++, y++)
+			{
+
+				if (countEnemyPawn(black, i, j, i - x, j - y).x == 1 && pawnMap[i - x][j - y] == 2 && countEnemyPawn(black, i, j, i - x, j - y).x != -2
+					&& checkArrayCorrectness(i - x, j - y, 2, 2))
+				{
+					return true;
+				}
+
+				else if (countEnemyPawn(black, i, j, i - x, j + y).x == 1 && pawnMap[i - x][j + y] == 2 && countEnemyPawn(black, i, j, i - x, j + y).x != -2
+					&& checkArrayCorrectness(i - x, j + y, 2, 2))
+				{
+					return true;
+				}
+
+				else if (countEnemyPawn(black, i, j, i + x, j + y).x == 1 && pawnMap[i + x][j + y] == 2 && countEnemyPawn(black, i, j, i + x, j + y).x != -2
+					&& checkArrayCorrectness(i + x, j + y, 2, 2))
+				{
+					return true;
+				}
+
+				else if (countEnemyPawn(black, i, j, i + x, j - y).x == 1 && pawnMap[i + x][j - y] == 2 && countEnemyPawn(black, i, j, i + x, j - y).x != -2
+					&& checkArrayCorrectness(i + x, j - y, 2, 2))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+
+}
+
+bool Pawn::getNextMove()
 {
 	return nextMove;
+}
+
+void Pawn::updateKingPawn(int side)
+{
+	if (side == white)
+	{
+		for (int i = 0; i < 8; i++)
+			if (pawnMap[0][i] == white)
+				pawnMap[0][i] = 4;
+	}
+	else
+	{
+		for (int i = 0; i < 8; i++)
+			if (pawnMap[7][i] == black)
+				pawnMap[7][i] = 1;
+	}
+
 }
 
 /*
@@ -391,22 +735,22 @@ bool Pawn::checkCapture(int side)
 		{
 			if (side == white && pawnMap[i][j] == white)
 			{
-				if (pawnMap[i - 1][j - 1] == black && pawnMap[i - 2][j - 2] == 2 
+				if ((pawnMap[i - 1][j - 1] == black || pawnMap[i - 1][j - 1] == 1) && pawnMap[i - 2][j - 2] == 2 
 					&& checkArrayCorrectness(i - 1, j - 1, i - 2, j - 2))
 				{
 					return true;
 				}
-				if (pawnMap[i - 1][j + 1] == black && pawnMap[i - 2][j + 2] == 2 && i - 1 >= 0 
+				if ((pawnMap[i - 1][j + 1] == black || pawnMap[i -1 ][j + 1] == 1) && pawnMap[i - 2][j + 2] == 2 && i - 1 >= 0 
 					&& checkArrayCorrectness(i - 1, j + 1, i - 2, j + 2))
 				{
 					return true;
 				}
-				if (pawnMap[i + 1][j + 1] == black && pawnMap[i + 2][j + 2] == 2 
+				if ((pawnMap[i + 1][j + 1] == black || pawnMap[i + 1][j + 1] == 1) && pawnMap[i + 2][j + 2] == 2 
 					&& checkArrayCorrectness(i + 1, j + 1, i + 2, j + 2))
 				{
 					return true;
 				}
-				if (pawnMap[i + 1][j - 1] == black && pawnMap[i + 2][j - 2] == 2 
+				if ((pawnMap[i + 1][j - 1] == black || pawnMap[i + 1][j - 1] == 1) && pawnMap[i + 2][j - 2] == 2 
 					&& checkArrayCorrectness(i + 1, j - 1, i + 2, j - 2))
 				{
 					return true;
@@ -416,22 +760,22 @@ bool Pawn::checkCapture(int side)
 			if (side == black && pawnMap[i][j] == black)
 			{
 			
-					if (pawnMap[i - 1][j - 1] == white && pawnMap[i - 2][j - 2] == 2
+					if ((pawnMap[i - 1][j - 1] == white || pawnMap[i - 1][j - 1] == 4) && pawnMap[i - 2][j - 2] == 2
 						&& checkArrayCorrectness(i - 1, j - 1, i - 2, j - 2))
 					{
 						return true;
 					}
-					if (pawnMap[i - 1][j + 1] == white && pawnMap[i - 2][j + 2] == 2
+					if ((pawnMap[i - 1][j + 1] == white || pawnMap[i - 1][j + 1] == 4) && pawnMap[i - 2][j + 2] == 2
 						&& checkArrayCorrectness(i - 1, j + 1, i - 2, j + 2))
 					{
 						return true;
 					}
-					if (pawnMap[i + 1][j + 1] == white && pawnMap[i + 2][j + 2] == 2
+					if ((pawnMap[i + 1][j + 1] == white || pawnMap[i + 1][j + 1] == 4) && pawnMap[i + 2][j + 2] == 2
 						&& checkArrayCorrectness(i + 1, j + 1, i + 2, j + 2))
 					{
 						return true;
 					}
-					if (pawnMap[i + 1][j - 1] == white && pawnMap[i + 2][j - 2] == 2
+					if ((pawnMap[i + 1][j - 1] == white || pawnMap[i + 1][j - 1] == 4) && pawnMap[i + 2][j - 2] == 2
 						&& checkArrayCorrectness(i + 1, j - 1, i + 2, j - 2))
 					{
 						return true;
@@ -443,6 +787,85 @@ bool Pawn::checkCapture(int side)
 
 	return false;
 
+}
+
+bool Pawn::checkCaptureKing(int side)
+{
+	for (int i = 0; i < 8; i++)
+		for (int j = 0; j < 8; j++)
+		{
+			if (side == white)
+			{
+				if (pawnMap[i][j] == 4)
+				{
+					for (int x = 1, y = 1; x < 8; x++, y++)
+					{
+						if (countEnemyPawn(white, i, j, i - x, j - y).x == 1 && pawnMap[i - x][j - y] == 2 && countEnemyPawn(white, i, j, i - x, j - y).x != -2
+							&& checkArrayCorrectness(i - x, j - y, 2, 2))
+						{
+							return true;
+						}
+
+						else if (countEnemyPawn(white, i, j, i - x, j + y).x == 1 && pawnMap[i - x][j + y] == 2 && countEnemyPawn(white, i, j, i - x, j + y).x != -2
+							&& checkArrayCorrectness(i - x, j + y, 2, 2))
+						{
+							return true;
+						}
+
+						else if (countEnemyPawn(white, i, j, i + x, j + y).x == 1 && pawnMap[i + x][j + y] == 2 && countEnemyPawn(white, i, j, i + x, j + y).x != -2
+							&& checkArrayCorrectness(i + x, j + y, 2, 2))
+						{
+							return true;
+						}
+
+						else if (countEnemyPawn(white, i, j, i + x, j - y).x == 1 && pawnMap[i + x][j - y] == 2 && countEnemyPawn(white, i, j, i + x, j - y).x != -2
+							&& checkArrayCorrectness(i + x, j - y, 2, 2))
+						{
+							return true;
+						}
+
+					}
+				}
+			}
+
+			else
+			{
+				if (pawnMap[i][j] == 1)
+				{
+
+					for (int x = 1, y = 1; x < 8; x++, y++)
+					{
+
+						if (countEnemyPawn(black, i, j, i - x, j - y).x == 1 && pawnMap[i - x][j - y] == 2 && countEnemyPawn(black, i, j, i - x, j - y).x != -2
+							&& checkArrayCorrectness(i - x, j - y, 2, 2))
+						{
+							return true;
+						}
+
+						else if (countEnemyPawn(black, i, j, i - x, j + y).x == 1 && pawnMap[i - x][j + y] == 2 && countEnemyPawn(black, i, j, i - x, j + y).x != -2
+							&& checkArrayCorrectness(i - x, j + y, 2, 2))
+						{
+							return true;
+						}
+
+						else if (countEnemyPawn(black, i, j, i + x, j + y).x == 1 && pawnMap[i + x][j + y] == 2 && countEnemyPawn(black, i, j, i + x, j + y).x != -2
+							&& checkArrayCorrectness(i + x, j + y, 2, 2))
+						{
+							return true;
+						}
+
+						else if (countEnemyPawn(black, i, j, i + x, j - y).x == 1 && pawnMap[i + x][j - y] == 2 && countEnemyPawn(black, i, j, i + x, j - y).x != -2
+							&& checkArrayCorrectness(i + x, j - y, 2, 2))
+						{
+							return true;
+						}
+					}
+				}
+			}
+
+		}
+
+	return false;
 }
 
 Sprite Pawn::getWhitePawnSprite()
