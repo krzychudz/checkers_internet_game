@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "Button.h"
-
+#include "Constants.h"
 
 Button::Button(std::string text, Vector2f size, Color c)
 {
-	font.loadFromFile("Fonts/arial.ttf");
+	font.loadFromFile(FONT_PATH);
 
 	buttonLabel.setString(text);
 	buttonLabel.setFont(font);
-	buttonLabel.setCharacterSize(25);
+	buttonLabel.setCharacterSize(16);
 	buttonLabel.setFillColor(Color::White);
 
 	buttonBackground.setSize(size);
@@ -45,5 +45,10 @@ void Button::draw(RenderWindow * wnd)
 void Button::setPosition(float x, float y)
 {
 	buttonBackground.setPosition(x, y);
-	buttonLabel.setPosition(x, y);
+	buttonLabel.setPosition(x, y+5);
+}
+
+void Button::setColor(Color color)
+{
+	buttonLabel.setFillColor(color);
 }

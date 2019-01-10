@@ -69,5 +69,8 @@ private:
 
 	int skipMoves = 0;
 
+	RectangleShape selectedRectangle;
+	bool drawRectangle = false;
+
 };
 

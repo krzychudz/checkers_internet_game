@@ -207,8 +207,8 @@ bool Pawn::update(int sX, int sY, int dX, int dY, int side)
 	if (map[dX][dY] == 1 || !checkArrayCorrectness(dX, dY, 2, 2))
 		return false;
 
-
-	cout << "SIDE: " << side << endl;
+	if (pawnMap[sX][sY] == 2)
+		return false;
 
 	if (checkCapture(side) || checkCaptureKing(side))						// Ruch gdy trzeba wykonac bicie
 	{

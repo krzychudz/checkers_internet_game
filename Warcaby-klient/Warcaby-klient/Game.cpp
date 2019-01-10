@@ -4,7 +4,7 @@
 
 Game::Game()
 {
-	window.create(VideoMode(800, 600), "Warcaby");
+	window.create(VideoMode(800, 512), "Checkers");
 
 	window.setFramerateLimit(60);
 }

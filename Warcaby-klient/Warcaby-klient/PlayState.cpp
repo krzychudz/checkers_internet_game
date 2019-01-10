@@ -11,7 +11,7 @@ PlayState::PlayState(Game * game, int side)
 	this->game = game;
 	this->side = side;
 
-	font.loadFromFile("Fonts/arial.ttf");
+	font.loadFromFile(FONT_PATH);
 	
 	sideText.setOrigin(sideText.getLocalBounds().width / 2.0f, sideText.getLocalBounds().height / 2.0f);
 	sideText.setCharacterSize(25);
@@ -25,23 +25,31 @@ PlayState::PlayState(Game * game, int side)
 	}
 	else
 		sideText.setString("White");
+	
+
+	sideText.setPosition(600, 50);
 
 	turnText.setOrigin(sideText.getLocalBounds().width / 2.0f, sideText.getLocalBounds().height / 2.0f);
 	turnText.setCharacterSize(25);
 	turnText.setFillColor(Color::White);
 	turnText.setFont(font);
 	turnText.setString("Your Turn");
-	turnText.setPosition(650, 150);
+	turnText.setPosition(610, 150);
 
-	surrenderButton = new Button("Poddaj sie!", Vector2f(150, 50), Color::Black);
-	surrenderButton->setPosition(650,350);
+	surrenderButton = new Button("Surrender!", Vector2f(150, 50), Color::Black);
+	surrenderButton->setPosition(660,350);
 
 	clockText.setOrigin(clockText.getLocalBounds().width / 2.0f, clockText.getLocalBounds().height / 2.0f);
 	clockText.setCharacterSize(25);
 	clockText.setFillColor(Color::White);
 	clockText.setFont(font);
 	clockText.setString("1:00");
-	clockText.setPosition(650, 400);
+	clockText.setPosition(620, 220);
+
+	selectedRectangle.setSize(Vector2f(64, 64));
+	selectedRectangle.setOutlineColor(Color::Red);
+	selectedRectangle.setOutlineThickness(3);
+	selectedRectangle.setFillColor(Color(255, 255, 255, 0));
 }
 
 
@@ -56,15 +64,24 @@ void PlayState::draw()
 	if (isTurn == side)
 		game->window.draw(turnText);
 	
+	if (surrenderButton->isButtonPressed(&game->window) && isTurn == side)
+		surrenderButton->setColor(Color::Red);
+	else
+		surrenderButton->setColor(Color::White);
+
+
 	surrenderButton->draw(&game->window);
 
-	sideText.setPosition(650, 100);
 	game->window.draw(sideText);
 
 	map.draw(&game->window);
 	pawnMap.draw(&game->window);
 
 	game->window.draw(clockText);
+
+	if (drawRectangle)
+		game->window.draw(selectedRectangle);
+	
 }
 
 void PlayState::update()
@@ -125,8 +142,11 @@ void PlayState::update()
 		int min = tmp / 60;
 		int sec = tmp - (min*60);
 
-		if(sec < 10)
+		if (sec < 10)
+		{
 			ss << min << ":0" << sec;
+			clockText.setFillColor(Color::Red);
+		}
 		else
 			ss << min << ":" << sec;
 
@@ -157,6 +177,7 @@ void PlayState::update()
 					isTurn = white;
 				}
 
+				clockText.setFillColor(Color::White);
 				sendData = true;
 			}
 		}
@@ -172,7 +193,7 @@ void PlayState::handleInput()
 		if (event.type == sf::Event::Closed)
 			game->window.close();	
 
-		switch (event.type) // test
+		switch (event.type) 
 		{
 		case sf::Event::KeyPressed:
 			if (event.key.code == sf::Keyboard::Q)
@@ -194,21 +215,33 @@ void PlayState::handleInput()
 			if (surrenderButton->isButtonPressed(&game->window) && isTurn == side)
 				surrender = true;
 
-			if(pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
-				Mouse::getPosition(game->window).x / PAWN_HEIGHT == 1 && side == black))
-					king = true;
-
 			if (pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
-				Mouse::getPosition(game->window).x / PAWN_HEIGHT == 4 && side == white))
+				Mouse::getPosition(game->window).x / PAWN_HEIGHT) == 1 && side == black &&
+				Mouse::getPosition(game->window).y / PAWN_WIDTH < 8 && Mouse::getPosition(game->window).x / PAWN_HEIGHT < 8)
 					king = true;
+			
+			
+			if (pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
+				Mouse::getPosition(game->window).x / PAWN_HEIGHT) == 4 && side == white &&
+				Mouse::getPosition(game->window).y / PAWN_WIDTH < 8 && Mouse::getPosition(game->window).x / PAWN_HEIGHT < 8)
+					king = true;
+			
+			
 
 			if (isTurn == side && (pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
-				Mouse::getPosition(game->window).x / PAWN_HEIGHT) == side || king) && !selected)
+				Mouse::getPosition(game->window).x / PAWN_HEIGHT) == side || king) && !selected &&
+				Mouse::getPosition(game->window).y / PAWN_WIDTH < 8 && Mouse::getPosition(game->window).x / PAWN_HEIGHT < 8)
 			{
+					
+
 				sourceX = (Mouse::getPosition(game->window).y / PAWN_HEIGHT);
 				sourceY = (Mouse::getPosition(game->window).x / PAWN_WIDTH);
 				selected = true;
 				king = false;
+
+				selectedRectangle.setPosition(sourceY * 64, sourceX * 64);
+				drawRectangle = true;
+
 			}
 
 			else if (selected && isTurn == side)
@@ -216,7 +249,7 @@ void PlayState::handleInput()
 				destX = (Mouse::getPosition(game->window).y / PAWN_HEIGHT);
 				destY = (Mouse::getPosition(game->window).x / PAWN_WIDTH);
 
-
+				drawRectangle = false;
 
 				if (pawnMap.update(sourceX, sourceY, destX, destY, side))
 				{
@@ -258,14 +291,11 @@ void PlayState::handleInput()
 
 
 						clockText.setString("1:00");
+						clockText.setFillColor(Color::White);
 					}
 				}
-				else
-				{
-					cout << "Zly ruch" << endl;
-
-				}
-
+				
+		
 				selected = false;
 
 			}
@@ -288,7 +318,6 @@ void PlayState::sendDataToServer()
 	{
 		if (moves[0] == 'S')
 		{
-			cout << "SEND: " << moves << endl;
 			game->socket.disconnect();
 			game->pushState(new GameOverState(game, false));	
 		}
@@ -301,11 +330,11 @@ void PlayState::sendDataToServer()
 		receive = true;
 	}
 	else if (status == sf::Socket::Disconnected)
-		game->pushState(new ServerErrorState(game, "Server connect - ERROR1"));
+		game->pushState(new ServerErrorState(game, "Server connection error"));
 	else if (status == sf::Socket::Error)
-		game->pushState(new ServerErrorState(game, "Server connect - ERROR1"));
+		game->pushState(new ServerErrorState(game, "Server connection error"));
 	else
-		game->pushState(new ServerErrorState(game, "Server connect - ERROR1"));
+		game->pushState(new ServerErrorState(game, "Server connection error"));
 
 }
 
@@ -339,7 +368,6 @@ void PlayState::receiveData()
 
 		else if (buf[0] == 'S')
 		{
-			//pawnMap.setMap(buf);
 			memset(buf, '*', 66);
 			surrenderEnemy = true;
 		}
@@ -351,13 +379,13 @@ void PlayState::receiveData()
 
 	}
 	else if (status == sf::Socket::Disconnected && !surrender)
-		game->pushState(new ServerErrorState(game, "Server connect - ERROR2"));
+		game->pushState(new ServerErrorState(game, "Server connection error"));
 	else if (status == sf::Socket::Error && !surrender)
-		game->pushState(new ServerErrorState(game, "Server connect - ERROR2"));	
+		game->pushState(new ServerErrorState(game, "Server connection error"));	
 	else
 	{
 		if(!surrender)
-			game->pushState(new ServerErrorState(game, "Server connect - ERROR2"));
+			game->pushState(new ServerErrorState(game, "Server connection error"));
 	}
 
 }

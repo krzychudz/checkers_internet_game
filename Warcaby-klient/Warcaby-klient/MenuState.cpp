@@ -8,24 +8,24 @@ MenuState::MenuState(Game * game)
 {
 	this->game = game;
 
-	font.loadFromFile("Fonts/arial.ttf");
+	font.loadFromFile(FONT_PATH);
 
 	title.setOrigin(title.getLocalBounds().width / 2.0f, title.getLocalBounds().height / 2.0f);
 	newGame.setOrigin(newGame.getLocalBounds().width / 2.0f, newGame.getLocalBounds().height / 2.0f);
 	exit.setOrigin(exit.getLocalBounds().width / 2.0f, exit.getLocalBounds().height / 2.0f);
 
-	title.setString("Warcaby");
+	title.setString("Checkers");
 	title.setCharacterSize(32);
 	title.setFillColor(Color::White);
 	title.setFont(font);
 
-	newGame.setString("Nowa gra");
-	newGame.setCharacterSize(32);
+	newGame.setString("New game");
+	newGame.setCharacterSize(16);
 	newGame.setFillColor(Color::White);
 	newGame.setFont(font);
 
-	exit.setString("Koniec");
-	exit.setCharacterSize(32);
+	exit.setString("Exit");
+	exit.setCharacterSize(16);
 	exit.setFillColor(Color::White);
 	exit.setFont(font);
 

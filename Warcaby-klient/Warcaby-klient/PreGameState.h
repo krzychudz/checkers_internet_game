@@ -38,6 +38,9 @@ private:
 	char dataBuf[64];
 	size_t dataSize;
 
+	std::string IP_ADDRESS;
+
+
 
 };
 

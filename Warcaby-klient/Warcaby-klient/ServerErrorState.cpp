@@ -7,18 +7,18 @@ ServerErrorState::ServerErrorState(Game* game, std::string text)
 {
 	this->game = game;
 
-	font.loadFromFile("Fonts/arial.ttf");
+	font.loadFromFile(FONT_PATH);
 	errorInfo.setOrigin(errorInfo.getLocalBounds().width / 2.0f, errorInfo.getLocalBounds().height / 2.0f);
 	returnToMainMenu.setOrigin(returnToMainMenu.getLocalBounds().width / 2.0f, returnToMainMenu.getLocalBounds().height / 2.0f);
 
-	errorInfo.setCharacterSize(32);
+	errorInfo.setCharacterSize(25);
 	errorInfo.setFillColor(Color::White);
 	errorInfo.setFont(font);
 	errorInfo.setString(text);
 	errorInfo.setFillColor(Color::White);
 
-	returnToMainMenu.setString("Menu");
-	returnToMainMenu.setCharacterSize(25);
+	returnToMainMenu.setString("Press enter to menu");
+	returnToMainMenu.setCharacterSize(16);
 	returnToMainMenu.setFont(font);
 
 	errorInfo.setPosition(WINDOW_WIDTH / 2.0f - errorInfo.getLocalBounds().width / 2.0f, 50);

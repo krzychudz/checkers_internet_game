@@ -3,6 +3,7 @@
 #include "PlayState.h"
 #include "ServerErrorState.h"
 #include "MenuState.h"
+#include <fstream>
 
 
 
@@ -10,10 +11,10 @@ PreGameState::PreGameState(Game * game)
 {
 	this->game = game;
 
-	font.loadFromFile("Fonts/arial.ttf");
+	font.loadFromFile(FONT_PATH);
 	info.setOrigin(info.getLocalBounds().width / 2.0f, info.getLocalBounds().height / 2.0f);
 
-	info.setString("Oczekiwanie na przeciwnika...");
+	info.setString("Waiting for players...");
 	info.setCharacterSize(32);
 	info.setFillColor(Color::White);
 	info.setFont(font);
@@ -24,6 +25,10 @@ PreGameState::PreGameState(Game * game)
 	runThreadConnect = true;
 	runThreadReceive = false;
 	isDataReceive = false;
+
+	std::ifstream infile("ip_address.txt");
+	infile >> IP_ADDRESS;
+	infile.close();
 
 }
 
@@ -55,9 +60,6 @@ void PreGameState::update()
 
 		if (isDataReceive)
 		{
-			cout << "recived" << endl;
-			cout << dataBuf[0] << endl;
-
 			if (dataBuf[0] == 'w')
 			{
 				side = white;
@@ -67,6 +69,11 @@ void PreGameState::update()
 			{
 				side = black;
 				game->pushState(new PlayState(game, side));
+			}
+			else if (dataBuf[0] == 'E')
+			{
+				game->socket.disconnect();
+				game->pushState(new ServerErrorState(game, "Your opponent has lefy the game"));
 			}
 			else
 				cout << "Error" << endl;
@@ -105,19 +112,15 @@ void PreGameState::handleInput()
 
 void PreGameState::connect()
 {	
-	sf::Socket::Status status = game->socket.connect(SERVER_IP, SERVER_PORT);
+	sf::Socket::Status status = game->socket.connect(IP_ADDRESS, SERVER_PORT);
 
 	if (status != sf::Socket::Done)
-	{
-		cout << "ERROR: Tcp Socket - connect" << endl;
-		game->pushState(new ServerErrorState(game, "Server connect - ERROR"));
-
-	}
+		game->pushState(new ServerErrorState(game, "ERROR - server is not available"));
+	
 	else
 	{
 		connected = true;
 		runThreadReceive = true;
-		cout << "Connect to server - success" << endl;
 	}
 	
 }
@@ -128,7 +131,7 @@ void PreGameState::receiveData()
 	sf::Socket::Status status = game->socket.receive(dataBuf, 2, dataSize);
 
 	if (status != sf::Socket::Done)
-		game->pushState(new ServerErrorState(game, "Server connect - ERROR"));
+		game->pushState(new ServerErrorState(game, "Server connection error"));
 	else
 		isDataReceive = true;
 }

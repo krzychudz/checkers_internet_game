@@ -7,22 +7,22 @@ GameOverState::GameOverState(Game* game, bool resultInfo)
 {
 	this->game = game;
 
-	font.loadFromFile("Fonts/arial.ttf");
+	font.loadFromFile(FONT_PATH);
 	resultText.setOrigin(resultText.getLocalBounds().width / 2.0f, resultText.getLocalBounds().height / 2.0f);
 	returnToMainMenu.setOrigin(returnToMainMenu.getLocalBounds().width / 2.0f, returnToMainMenu.getLocalBounds().height / 2.0f);
 
-	resultText.setCharacterSize(32);
+	resultText.setCharacterSize(25);
 	resultText.setFillColor(Color::White);
 	resultText.setFont(font);
 
 	if (resultInfo)
-		resultText.setString("Wygrana");
+		resultText.setString("You win");
 	else
-		resultText.setString("Przegrana");
+		resultText.setString("You lose");
 
 
-	returnToMainMenu.setString("Menu");
-	returnToMainMenu.setCharacterSize(25);
+	returnToMainMenu.setString("Press enter to menu");
+	returnToMainMenu.setCharacterSize(16);
 	resultText.setFillColor(Color::White);
 	returnToMainMenu.setFont(font);
 

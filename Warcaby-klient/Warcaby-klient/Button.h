@@ -12,6 +12,7 @@ public:
 	bool isButtonPressed(RenderWindow * wnd);
 	void draw(RenderWindow * wnd);
 	void setPosition(float x, float y);
+	void setColor(Color color);
 
 private:
 	RectangleShape buttonBackground;
