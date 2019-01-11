@@ -5,6 +5,10 @@ using namespace std;
 using namespace sf;
 #pragma once
 
+/*
+	Klasa ob³uguj¹ca planszê gry. Czarne i bia³e pola. S³uzy g³ównie do rysowania planszy.
+*/
+
 class Map
 {
 public:

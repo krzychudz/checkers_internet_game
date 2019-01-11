@@ -1,0 +1,47 @@
+﻿  Button.cpp
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\button.cpp(38): warning C4244: "=": konwersja z "T" do "T", możliwa utrata danych
+          with
+          [
+              T=int
+          ]
+          and
+          [
+              T=float
+          ]
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\button.cpp(39): warning C4244: "=": konwersja z "T" do "T", możliwa utrata danych
+          with
+          [
+              T=int
+          ]
+          and
+          [
+              T=float
+          ]
+  Game.cpp
+  GameOverState.cpp
+  GameState.cpp
+  Map.cpp
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\map.cpp(45): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+  MenuState.cpp
+  Pawn.cpp
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\pawn.cpp(68): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\pawn.cpp(73): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\pawn.cpp(78): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\pawn.cpp(83): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\pawn.cpp(235): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\pawn.cpp(236): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\pawn.cpp(258): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\pawn.cpp(259): warning C4244: "inicjowanie": konwersja z "double" do "int", możliwa utrata danych
+  PlayState.cpp
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\playstate.cpp(149): warning C4244: "inicjowanie": konwersja z "float" do "int", możliwa utrata danych
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\playstate.cpp(249): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+  PreGameState.cpp
+  ServerErrorState.cpp
+  Warcaby-klient.cpp
+  Trwa generowanie kodu
+e:\programowanie\projekty\sk\warcaby-klient\warcaby-klient\pawn.cpp(371): warning C4715: "Pawn::update”: niewszystkie ścieżki kodu zwracają wartość
+  Zakończono generowanie kodu
+  80 of 803 functions (10.0%) were compiled, the rest were copied from previous compilation.
+    26 functions were new in current compilation
+    68 functions had inline decision re-evaluated but remain unchanged
+  Warcaby-klient.vcxproj -> E:\Programowanie\Projekty\SK\Warcaby-klient\Release\Warcaby-klient.exe
