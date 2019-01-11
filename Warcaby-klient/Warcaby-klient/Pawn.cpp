@@ -52,7 +52,7 @@ Pawn::~Pawn()
 }
 
 /*
-	Metoda klasy Pawn rysuj¹ca mapê pionów na podstawie tablicy pawnMap
+	Metoda rysuj¹ca mapê pionów na podstawie tablicy pawnMap
 	Parametry: RenderWindow *wnd - wskaŸnik na okno na którym bêd¹ rysowanie piony
 */
 
@@ -94,7 +94,7 @@ void Pawn::draw(RenderWindow *wnd)
 
 
 /*
-	Metoda klasy Pawn pobieraj¹ca wartoœæ z tablicy getField spod podanego indeksu
+	Metoda pobieraj¹ca wartoœæ z tablicy getField spod podanego indeksu
 	Parametry: int x - index x
 			   int y - index y
 */
@@ -104,6 +104,21 @@ int Pawn::getField(int x, int y)
 	return pawnMap[x][y];
 }
 
+/*
+	Metoda licz¹ca iloœæ przeciwnych pionów pomiêdzy dwoma podanymi polami w ukosie
+	Parametry: int side - strona
+			   int sX - index x pola pierwszego
+			   int sY - index y pola pierwszego
+			   int dX - index x pola drugiego
+			   int dY - index y pola drugiego
+	Return:
+				Vector3i - Vector zawieraj¹cy informacje:
+					Vector3i.x = -2 - je¿eli podane pola nie s¹ po ukosie lub napotkano pion gracza
+					Vector3i.x > 0 - iloœæ pionow przeciwnika w lini 
+					Vector3i.y - pozycja x wrogiego piona 
+					Vector3i.z - pozcyja y wrogiego piona
+					
+*/
 Vector3i Pawn::countEnemyPawn(int side, int sX, int sY, int dX, int dY)
 {
 	Vector3i data;
@@ -185,7 +200,7 @@ Vector3i Pawn::countEnemyPawn(int side, int sX, int sY, int dX, int dY)
 }
 
 /*
-	Metoda klasy Pawn sprawdzaj¹ca poprawnoœæ ruchu i aktualizuj¹ca tablicê pionów
+	Metoda sprawdzaj¹ca poprawnoœæ ruchu i aktualizuj¹ca tablicê pionów
 	Parametry: int sX - koordynat x z którego bierzemy piona
 			   int sY - koordynat y z którego bierzemy piona
 			   int dX - koordynat x na którego chcemy po³o¿yæ piona
@@ -356,7 +371,7 @@ bool Pawn::update(int sX, int sY, int dX, int dY, int side)
 }
 
 /*
-	Metoda klasy Pawn wykonjaca ruch w którym gracz bije piona przeciwnika
+	Metoda wykonjaca ruch w którym gracz bije piona przeciwnika
 	Parametry: int sX - koordynat x z którego bierzemy piona
 			   int sY - koordynat y z którego bierzemy piona
 			   int dX - koordynat x na którego chcemy po³o¿yæ piona
@@ -389,7 +404,7 @@ void Pawn::updateCapture(int sX, int sY,int delX, int delY, int dX, int dY, int 
 }
 
 /*
-	Metoda klasy Pawn wykonjaca zwyk³y ruch piona
+	Metoda wykonjaca zwyk³y ruch piona lub damki
 	Parametry: int sX - koordynat x z którego bierzemy piona
 			   int sY - koordynat y z którego bierzemy piona
 			   int dX - koordynat x na którego chcemy po³o¿yæ piona
@@ -419,7 +434,7 @@ void Pawn::updateNormalMove(int sX, int sY, int dX, int dY, int side, bool d)
 }
 
 /*
-	Metoda klasy Pawn konwertuj¹ca aktualny stan mapy do stringa
+	Metoda konwertuj¹ca aktualny stan mapy do stringa
 	Return: 
 			std::string - mapa w postaci stringa
 */
@@ -443,7 +458,7 @@ std::string Pawn::getMap()
 }
 
 /*
-	Metoda klasy Pawn ustawiaj¹ca mapê 
+	Metoda ustawiaj¹ca mapê 
 	Parametry:
 			char map[] - Wskaznik na tablicê char'ów zawieraj¹c¹ mapê do ustawienia
 */
@@ -472,7 +487,7 @@ void Pawn::setMap(char map[])
 }
 
 /*
-	Metoda klasy Pawn sprawdzaj¹ca czy nic nie odwo³uje siê poza zakres mapy
+	Metoda sprawdzaj¹ca czy nic nie odwo³uje siê poza zakres mapy
 	Parametry:
 			Zmienne do sprawdzenia
 	Return:
@@ -498,7 +513,7 @@ bool Pawn::checkArrayCorrectness(int x1, int x2, int x3, int x4)
 }
 
 /*
-	Metoda klasy Pawn sprawdzaj¹ca czy podane 2 pola le¿¹ po skosie odpowiednio daleko od siebie
+	Metoda sprawdzaj¹ca czy podane 2 pola le¿¹ po skosie odpowiednio daleko od siebie
 	Parametry:
 			int sX - wspó³rzêdna X pierwszego pola
 			int sY - wspó³rzêdna Y perwszego pola
@@ -525,7 +540,7 @@ bool Pawn::checkSkew(int sX, int sY, int dX, int dY, int lenght)
 }
 
 /*
-	Metoda klasy Pawn sprawdzaj¹ca czy gracz przegral
+	Metoda sprawdzaj¹ca czy przeciwnik przegral
 	Parametry:
 			int side - strona
 	Return:
@@ -566,6 +581,17 @@ bool Pawn::isLose(int side)
 	else
 		return false;
 }
+
+/*
+	Metoda sprawdzaj¹ca czy z danego pola mo¿na wykonaæ jakieœ bicie dla zwyk³ego piona
+	Parametry:
+			int side - strona
+			int i - pole X
+			int j - pole Y
+	Return:
+		   bool - True - z pola o wspó³rzêdnych i,j mo¿na wykonaæ bicie
+		   bool - False - z pola o wspó³rzêdnych i,j nie mo¿na wykonaæ bicie
+*/
 
 bool Pawn::checkNextMove(int side, int i, int j)
 {
@@ -621,6 +647,17 @@ bool Pawn::checkNextMove(int side, int i, int j)
 
 	return false;
 }
+
+/*
+	Metoda sprawdzaj¹ca czy z danego pola mo¿na wykonaæ jakieœ bicie dla damki
+	Parametry:
+			int side - strona
+			int i - pole X
+			int j - pole Y
+	Return:
+		   bool - True - z pola o wspó³rzêdnych i,j mo¿na wykonaæ bicie
+		   bool - False - z pola o wspó³rzêdnych i,j nie mo¿na wykonaæ bicie
+*/
 
 bool Pawn::checkNextMoveKing(int side, int i, int j)
 {
@@ -697,10 +734,25 @@ bool Pawn::checkNextMoveKing(int side, int i, int j)
 
 }
 
+/*
+	Metoda zwracaj¹ca infomacjê o tym czy dany gracz posiada kolejny ruch
+
+	Return:
+		   bool - True - gracz posiada dodatkowy ruch
+		   bool - False -gracz nie posiada dodatkowego ruchu
+*/
+
 bool Pawn::getNextMove()
 {
 	return nextMove;
 }
+
+
+/*
+	Metoda sprawdzaj¹ca czy zwyk³y pionek nie powinien staæ siê damk¹
+	Parametry:
+		   int side - strona
+*/
 
 void Pawn::updateKingPawn(int side)
 {
@@ -720,7 +772,7 @@ void Pawn::updateKingPawn(int side)
 }
 
 /*
-	Metoda klasy Pawn sprawdzaj¹ca czy gracz ma obowi¹zkowe bicia
+	Metoda sprawdzaj¹ca czy gracz ma obowi¹zkowe bicia zwyk³ym pionem
 	Parametry:
 			int side - strona
 	Return:
@@ -788,6 +840,15 @@ bool Pawn::checkCapture(int side)
 	return false;
 
 }
+
+/*
+	Metoda sprawdzaj¹ca czy gracz ma obowi¹zkowe bicia damk¹
+	Parametry:
+			int side - strona
+	Return:
+		   bool - True - Gracz ma obowi¹zkowe bicia
+		   bool - False - Gracz nie ma obowi¹zkowych biæ
+*/
 
 bool Pawn::checkCaptureKing(int side)
 {
@@ -868,10 +929,22 @@ bool Pawn::checkCaptureKing(int side)
 	return false;
 }
 
+/*
+	Metoda zwracaj¹ca sprite'a bia³ego piona
+	Return:
+		   Sprite - sprite 
+*/
+
 Sprite Pawn::getWhitePawnSprite()
 {
 	return whitePawnSprite;
 }
+
+/*
+	Metoda zwracaj¹ca sprite'a czarnego piona
+	Return:
+		   Sprite - sprite
+*/
 
 Sprite Pawn::getBlackPawnSprite()
 {

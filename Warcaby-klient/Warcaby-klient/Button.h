@@ -3,6 +3,10 @@
 
 using namespace sf;
 
+/*
+	Klasa obs³uguj¹ca przycisk.
+*/
+
 class Button
 {
 public:

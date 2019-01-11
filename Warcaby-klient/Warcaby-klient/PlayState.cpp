@@ -58,6 +58,10 @@ PlayState::~PlayState()
 	delete surrenderButton;
 }
 
+/*
+	Metoda rysuj¹ca grê
+*/
+
 void PlayState::draw()
 {
 
@@ -84,50 +88,54 @@ void PlayState::draw()
 	
 }
 
+/*
+	Metoda aktualizuj¹ca grê
+*/
+
 void PlayState::update()
 {
-	if (gameOverWin && !sendData)	//Wygrana gracza
+	if (gameOverWin && !sendData)	//Je¿eli gracz wygra³
 	{
-		game->socket.disconnect();
-		game->pushState(new GameOverState(game,true));
+		game->socket.disconnect();							// Od³¹czenie siê 
+		game->pushState(new GameOverState(game,true,""));   // Wyœwietlenie stanu koniec gry z informacj¹ o wygranej
 	}
 
-	if (gameOverLose && !sendData) //Przegrana gracza
+	if (gameOverLose && !sendData) //Je¿eli gracz przegra³
 	{
 		game->socket.disconnect();
-		game->pushState(new GameOverState(game, false));
+		game->pushState(new GameOverState(game, false,""));
 	}
 
-	if (surrender) // Surrender
+	if (surrender) // Je¿eli gracz siê podda³ 
 	{
-		moves = "S" + pawnMap.getMap() + "X";
-		std::thread sendThread(&PlayState::sendDataToServer, this);
+		moves = "S" + pawnMap.getMap() + "X";						 // Ustawienie odpowiednej informacji do wy³ania
+		std::thread sendThread(&PlayState::sendDataToServer, this);  // Uruchomienie w¹tku który wyœle dan¹ informacjê do serwera
 		sendThread.detach();
 	}
 
-	if (surrenderEnemy)
+	if (surrenderEnemy) // Wykycie sytuacji w której przeciwnik siê podda³
 	{
 		game->socket.disconnect();
-		game->pushState(new GameOverState(game, true));
+		game->pushState(new GameOverState(game, true, "Your opponent has surrender"));	// Wyœwietlenie stanu koniec gry z informacj¹ o wygranej z odpowiednim powodem
 	}
 
 	if (enemyConnError)
 	{
 		game->socket.disconnect();
-		game->pushState(new GameOverState(game, true));
+		game->pushState(new GameOverState(game, true, "Your opponent has disconnected"));
 	}
 
-	if (sendData && !gameOverLose && !surrender && !enemyConnError)
+	if (sendData && !gameOverLose && !surrender && !enemyConnError)		//Je¿eli aplikacja powinna wys³aæ dane
 	{
-		std::thread sendThread(&PlayState::sendDataToServer, this);
+		std::thread sendThread(&PlayState::sendDataToServer, this);		//Uruchomienie w¹tku który wyœle dane do serwera
 		sendThread.detach();
 
 		sendData = false;
 	}
 
-	if (isTurn != side && receive && !gameOverWin && !gameOverLose && !surrender && !surrenderEnemy && !enemyConnError)
+	if (isTurn != side && receive && !gameOverWin && !gameOverLose && !surrender && !surrenderEnemy && !enemyConnError) //Je¿eli aplikacja powinna oczekiwaæ na dane
 	{
-		std::thread receiveThread(&PlayState::receiveData, this);
+		std::thread receiveThread(&PlayState::receiveData, this);   //Uruchomienie w¹tku który bêdzie oczekiwa³ na dane
 		receiveThread.detach();
 
 		receive = false;
@@ -158,10 +166,10 @@ void PlayState::update()
 			clockText.setString("1:00");
 
 			skipMoves++;
-			if (skipMoves == 3)
+			if (skipMoves == 3)		// Je¿eli po raz trzeci gracz jest pasywny
 			{
-				moves = "T" + pawnMap.getMap() + "X";
-				std::thread sendThread(&PlayState::sendDataToServer, this);
+				moves = "T" + pawnMap.getMap() + "X";						
+				std::thread sendThread(&PlayState::sendDataToServer, this); // Wys³anie informacji do serwera
 				sendThread.detach();
 			}
 			else
@@ -184,6 +192,10 @@ void PlayState::update()
 	}
 }
 
+/*
+	Metoda obs³uguj¹ca wejœcie wyjœcie w grze
+*/
+
 void PlayState::handleInput()
 {
 	sf::Event event;
@@ -203,38 +215,33 @@ void PlayState::handleInput()
 			break;
 		}
 
-		if (event.type == Event::KeyReleased)
-		{
-			if (event.key.code == sf::Keyboard::Escape)
-				pauseGame();
-		}
 
-		if (event.type == Event::MouseButtonReleased)
+		if (event.type == Event::MouseButtonReleased)								// Je¿eli zwolniono przycisk myszy
 		{
 
-			if (surrenderButton->isButtonPressed(&game->window) && isTurn == side)
+			if (surrenderButton->isButtonPressed(&game->window) && isTurn == side)	// Nacisniêto przycisk poddaj siê
 				surrender = true;
 
 			if (pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
 				Mouse::getPosition(game->window).x / PAWN_HEIGHT) == 1 && side == black &&
-				Mouse::getPosition(game->window).y / PAWN_WIDTH < 8 && Mouse::getPosition(game->window).x / PAWN_HEIGHT < 8)
+				Mouse::getPosition(game->window).y / PAWN_WIDTH < 8 && Mouse::getPosition(game->window).x / PAWN_HEIGHT < 8) // Czy w polu na które klikamy jest damka
 					king = true;
 			
 			
 			if (pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
 				Mouse::getPosition(game->window).x / PAWN_HEIGHT) == 4 && side == white &&
-				Mouse::getPosition(game->window).y / PAWN_WIDTH < 8 && Mouse::getPosition(game->window).x / PAWN_HEIGHT < 8)
+				Mouse::getPosition(game->window).y / PAWN_WIDTH < 8 && Mouse::getPosition(game->window).x / PAWN_HEIGHT < 8) // Czy w polu na które klikamy jest damka
 					king = true;
 			
 			
 
 			if (isTurn == side && (pawnMap.getField(Mouse::getPosition(game->window).y / PAWN_WIDTH,
 				Mouse::getPosition(game->window).x / PAWN_HEIGHT) == side || king) && !selected &&
-				Mouse::getPosition(game->window).y / PAWN_WIDTH < 8 && Mouse::getPosition(game->window).x / PAWN_HEIGHT < 8)
+				Mouse::getPosition(game->window).y / PAWN_WIDTH < 8 && Mouse::getPosition(game->window).x / PAWN_HEIGHT < 8) // Czy w polu na które klikamy jest pionek lub damka
 			{
 					
 
-				sourceX = (Mouse::getPosition(game->window).y / PAWN_HEIGHT);
+				sourceX = (Mouse::getPosition(game->window).y / PAWN_HEIGHT);		// Wspó³rzêdne w tablicy pionów (zaznacznoego pionka)
 				sourceY = (Mouse::getPosition(game->window).x / PAWN_WIDTH);
 				selected = true;
 				king = false;
@@ -246,28 +253,28 @@ void PlayState::handleInput()
 
 			else if (selected && isTurn == side)
 			{
-				destX = (Mouse::getPosition(game->window).y / PAWN_HEIGHT);
+				destX = (Mouse::getPosition(game->window).y / PAWN_HEIGHT);		// Wspó³rzêdne w talbicy pionków (pola na który chcemy piona przenieœæ)
 				destY = (Mouse::getPosition(game->window).x / PAWN_WIDTH);
 
 				drawRectangle = false;
 
-				if (pawnMap.update(sourceX, sourceY, destX, destY, side))
+				if (pawnMap.update(sourceX, sourceY, destX, destY, side))		// Sprawdzenia czy mo¿na wykonaæ dany ruch przenosz¹c piona z pola (sourceX, sourceY) na pole (destX, destY)
 				{
 
-					if (!pawnMap.getNextMove())
+					if (!pawnMap.getNextMove())				// Sprawdzenie czy gracz nie musi wykonaæ jescze jedno bicia, w przypadku bicia wielokrotnego
 					{
 						
-						pawnMap.updateKingPawn(side);
+						pawnMap.updateKingPawn(side);		// Sprawdzenie czy któryœ z naszych pionków nie powienien zmieniæ siê w damkê
 
-						if (side == white)
+						if (side == white)					// Przygotowanie danych do wys³ania w zale¿noœci od strony
 						{
 							if (pawnMap.isLose(black))
 							{
-								moves = "L" + pawnMap.getMap() + "X";
+								moves = "L" + pawnMap.getMap() + "X";	// Je¿eli wyktyto ¿e przeciwnik przegra³
 								gameOverWin = true;
 							}
 							else
-								moves = "b" + pawnMap.getMap() + "X";
+								moves = "b" + pawnMap.getMap() + "X";	// Normalny ruch
 
 						}
 						else
@@ -284,13 +291,13 @@ void PlayState::handleInput()
 
 						sendData = true;
 
-						if (side == white)
+						if (side == white)		// Zmiana tury na turê przeciwnika
 							isTurn = black;
 						else
 							isTurn = white;
 
 
-						clockText.setString("1:00");
+						clockText.setString("1:00");			// Reset timera
 						clockText.setFillColor(Color::White);
 					}
 				}
@@ -305,31 +312,30 @@ void PlayState::handleInput()
 	
 }
 
-void PlayState::pauseGame()
-{
-	game->pushState(new MenuState(game));
-}
+/*
+	Metoda pozwalaj¹ca wys³aæ dane do serwera
+*/
 
 void PlayState::sendDataToServer()
 {
-	sf::Socket::Status status = game->socket.send(moves.c_str(), 66, t);
+	sf::Socket::Status status = game->socket.send(moves.c_str(), 66, t);		// Wys³anie aktualnych danych do serwera
 
-	if (status == sf::Socket::Done)
+	if (status == sf::Socket::Done)			// Je¿eli wszystkie dane zosta³y wys³ane
 	{
-		if (moves[0] == 'S')
+		if (moves[0] == 'S')				// Je¿eli wysy³aliœmy informacjê o tym ¿e siê poddajemy
 		{
 			game->socket.disconnect();
-			game->pushState(new GameOverState(game, false));	
+			game->pushState(new GameOverState(game, false,""));		// Wyœwietlamy stan w którym informujemy o pora¿ce
 		}
-		else if (moves[0] == 'T')
+		else if (moves[0] == 'T')									// Je¿eli wysy³aliœmy informacjê o tym ¿e byliœmy pasywni przez 3 rundy
 		{
 			game->socket.disconnect();
-			game->pushState(new GameOverState(game, false));
+			game->pushState(new GameOverState(game, false,"You must play!")); // Wyœwietlamy stan w którym informujemy o pora¿ce z powodem
 		}
 
 		receive = true;
 	}
-	else if (status == sf::Socket::Disconnected)
+	else if (status == sf::Socket::Disconnected)									// W przypadku b³êdów z wys³aniem
 		game->pushState(new ServerErrorState(game, "Server connection error"));
 	else if (status == sf::Socket::Error)
 		game->pushState(new ServerErrorState(game, "Server connection error"));
@@ -338,47 +344,50 @@ void PlayState::sendDataToServer()
 
 }
 
+/*
+	Metoda pozwalaj¹ca odebraæ dane do serwera
+*/
+
 void PlayState::receiveData()
 {
-	sf::Socket::Status status = game->socket.receive(buf, 66, t);
+	sf::Socket::Status status = game->socket.receive(buf, 66, t);		// Oczekujemy na dane
 
 	if (status == sf::Socket::Done)
 	{
-		cout << "BUF: " << buf << endl;
-		if (buf[0] == 'b')
+		if (buf[0] == 'b')					// Je¿eli przeciwnik wykona³ ruch normalnie 
 		{
-			clock.restart();
-			pawnMap.setMap(buf);
-			memset(buf, '*', 66);
-			isTurn = black;
+			clock.restart();			
+			pawnMap.setMap(buf);			// aktualizujemy pionki
+			memset(buf, '*', 66);			// ustawimy * w ca³ym buforze
+			isTurn = black;					// zmieniamy turê na nasz¹
 		}
-		else if (buf[0] == 'w')
+		else if (buf[0] == 'w')				// Je¿eli przeciwnik wykona³ ruch normalnie 
 		{
 			clock.restart();
 			pawnMap.setMap(buf);
 			memset(buf, '*', 66);
 			isTurn = white;
 		}
-		else if (buf[0] == 'L')
+		else if (buf[0] == 'L')				// Je¿eli przeciwnik wykry³ ¿e przegraliœmy
 		{
 			pawnMap.setMap(buf);
 			memset(buf, '*', 66);
-			gameOverLose = true;
+			gameOverLose = true;			// Flaga przegranej
 		}
 
-		else if (buf[0] == 'S')
+		else if (buf[0] == 'S')				// Je¿eli przeciwnik siê podda³
 		{
 			memset(buf, '*', 66);
 			surrenderEnemy = true;
 		}
-		else if (buf[0] == 'E')
+		else if (buf[0] == 'E')				// Je¿eli przeciwnik straci³ po³¹czenie z serwerem
 			enemyConnError = true;
 
-		else if (buf[0] == 'T')
+		else if (buf[0] == 'T')				// Je¿eli przeciwnik 3 razy by³ pasywny
 			gameOverWin = true;
 
-	}
-	else if (status == sf::Socket::Disconnected && !surrender)
+	}					
+	else if (status == sf::Socket::Disconnected && !surrender)						// Obs³uga b³êdów przy odbieraniu
 		game->pushState(new ServerErrorState(game, "Server connection error"));
 	else if (status == sf::Socket::Error && !surrender)
 		game->pushState(new ServerErrorState(game, "Server connection error"));	

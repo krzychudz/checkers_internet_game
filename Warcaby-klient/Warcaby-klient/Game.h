@@ -8,6 +8,11 @@ using namespace sf;
 
 class GameState;
 
+/*
+	Klasa ob³uguj¹ca ca³¹ oplikacjê. Tutaj wykonywana jest pêtla g³ówna która rysuje, aktualizuje aktualny stan gry.
+*/
+
+
 class Game
 {
 public:

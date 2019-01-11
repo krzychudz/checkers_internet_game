@@ -1,6 +1,11 @@
 #pragma once
 #include "GameState.h"
 #include <SFML/Graphics.hpp>
+
+/*
+	Klasa obs³uguj¹ca stan prezentacji b³êdów. Ta klasa wyœweitli ekran informuj¹cy o np. zerwaniu po³¹czenia z serwerem.
+*/
+
 class ServerErrorState :
 	public GameState
 {

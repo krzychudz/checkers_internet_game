@@ -5,6 +5,12 @@
 #include "Pawn.h"
 #include "Button.h"
 
+
+/*
+	Klasa obs³uguj¹ca stan g³ównej gry. To tutaj jest rysowana gra, oraz obs³ugiwane jest wejœcie wyjœcie. To ta klasa pozwala na u¿ywanie
+	myszki w grze, zajmuje siê wysy³aniem oraz odbieraniem danych, aktualizowaniem stanu rozgrywki.
+*/
+
 class PlayState : public GameState
 {
 public:
@@ -16,7 +22,6 @@ public:
 	virtual void handleInput();
 
 private:
-	void pauseGame();
 	void sendDataToServer();
 	void receiveData();
 

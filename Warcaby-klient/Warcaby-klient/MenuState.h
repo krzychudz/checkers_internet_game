@@ -3,6 +3,11 @@
 #include <SFML/Network.hpp>
 #include "GameState.h"
 
+
+/*
+	Klasa obs³uguj¹ca stan menu. St¹d mo¿emy wyjœæ z gry lub przejœæ do lobby.
+*/
+
 class MenuState : public GameState
 {
 public:

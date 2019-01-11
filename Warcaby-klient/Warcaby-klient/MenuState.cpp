@@ -36,6 +36,10 @@ MenuState::MenuState(Game * game)
 
 }
 
+/*
+	Metoda rysuj¹ca menu
+*/
+
 void MenuState::draw()
 {
 
@@ -44,6 +48,10 @@ void MenuState::draw()
 	game->window.draw(exit);
 
 }
+
+/*
+	Metoda aktualizuj¹ca menu
+*/
 
 void MenuState::update()
 {
@@ -61,6 +69,10 @@ void MenuState::update()
 
 
 }
+
+/*
+	Metoda obs³uguj¹ca wej/wyj w menu
+*/
 
 void MenuState::handleInput()
 {
@@ -102,6 +114,10 @@ void MenuState::handleInput()
 	}
 
 }
+
+/*
+	Metoda ³aduj¹ca stan w którym klient ³¹czy siê z serwerem i oczekuje na przeciwnika
+*/
 
 void MenuState::loadgame()
 {

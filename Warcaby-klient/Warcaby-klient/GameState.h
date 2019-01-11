@@ -10,6 +10,10 @@ using namespace sf;
 using namespace std;
 
 
+/*
+	Klasa po której dziedzicz¹ wszytkie inne stany w aplikacji.
+*/
+
 class GameState
 {
 public:

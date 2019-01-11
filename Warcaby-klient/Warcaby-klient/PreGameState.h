@@ -8,6 +8,12 @@
 
 using namespace sf;
 
+/*
+	Klasa obs³uguj¹ca lobby gry. Tutaj gracz oczekuje na inne gracza. Klasa ta nawi¹zuje pierwsze po³¹czenie z serwerem oraz odbiera
+	informacjê o tym czy gracz gra pionami bia³ymi czy czarnymi.
+*/
+
+
 class PreGameState :
 	public GameState
 {

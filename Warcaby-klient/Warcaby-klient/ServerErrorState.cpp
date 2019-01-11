@@ -31,15 +31,27 @@ ServerErrorState::~ServerErrorState()
 
 }
 
+/*
+	Metoda rysuj¹ca ekran informuj¹cy o b³êdzie
+*/
+
 void ServerErrorState::draw()
 {
 	game->window.draw(errorInfo);
 	game->window.draw(returnToMainMenu);
 }
 
+/*
+	Metoda aktualizuj¹ca ekran informuj¹cy o b³êdzie
+*/
+
 void ServerErrorState::update()
 {
 }
+
+/*
+	Metoda obs³uguj¹ca wej/wyj ekranu informuj¹cego o b³êdzie
+*/
 
 void ServerErrorState::handleInput()
 {

@@ -32,6 +32,10 @@ PreGameState::PreGameState(Game * game)
 
 }
 
+/*
+	Metoda rysuj¹ca lobby
+*/
+
 void PreGameState::draw()
 {
 
@@ -39,6 +43,10 @@ void PreGameState::draw()
 	game->window.draw(info);
 
 }
+
+/*
+	Metoda aktualizuj¹ca stan lobby
+*/
 
 void PreGameState::update()
 {
@@ -85,6 +93,10 @@ void PreGameState::update()
 
 }
 
+/*
+	Metoda obs³uguj¹ca wje/wyj lobby
+*/
+
 void PreGameState::handleInput()
 {
 	sf::Event event;
@@ -110,6 +122,10 @@ void PreGameState::handleInput()
 
 }
 
+/*
+	Metoda pozwalaj¹ca na po³¹czenie siê z serwerem
+*/
+
 void PreGameState::connect()
 {	
 	sf::Socket::Status status = game->socket.connect(IP_ADDRESS, SERVER_PORT);
@@ -124,6 +140,10 @@ void PreGameState::connect()
 	}
 	
 }
+
+/*
+	Metoda pozwalaj¹ca odebranie danych od serwera
+*/
 
 void PreGameState::receiveData()
 {

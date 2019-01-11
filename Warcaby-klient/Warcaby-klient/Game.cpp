@@ -16,10 +16,20 @@ Game::~Game()
 		popState();
 }
 
+/*
+	Metoda dodaj¹ca nowy stan(scenê) do narysowania na ekranie
+	Parametry:
+		GameState * state - wskaŸnik na nowy stan
+*/
+
 void Game::pushState(GameState * state)
 {
 	states.push_back(state);
 }
+
+/*
+	Metoda usuwaj¹ca stan
+*/
 
 void Game::popState()
 {
@@ -28,6 +38,12 @@ void Game::popState()
 	states.pop_back();
 }
 
+/*
+	Metoda zwracaj¹ca aktualnie obs³ugiwany stan
+	Return:
+		GameState * - wskaŸnik na aktualny stan
+*/
+
 GameState * Game::CurrentState()
 {
 	if (states.empty())
@@ -35,6 +51,11 @@ GameState * Game::CurrentState()
 	else
 		return states.back();
 }
+
+/*
+	Metoda obs³uguj¹ca g³ównê pêtle aplikacji
+
+*/
 
 void Game::gameLoop()
 {

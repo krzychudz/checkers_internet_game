@@ -6,6 +6,11 @@
 using namespace std;
 using namespace sf;
 
+/*
+	Klasa obs³uguj¹ca pionki na planszy. Tutaj za pomoc¹ wielu metod analizowane jest to czy gracz wykona³ poprawny ruch i czy mo¿na dany 
+	ruch wys³aæ do serwera a nastêpnie do drugiego gracza czy nie.
+*/
+
 class Pawn
 {
 public:
