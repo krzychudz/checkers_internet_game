@@ -1,1 +1,16 @@
-test
+Krzysztof Dziedzic 132215 grupa laboratoryjna I4 wtorek, godz. 15:10
+
+Sieci komputerowe – internetowa gra warcaby
+
+1. Opis protokołu kominikacyjnego:
+
+Protokół komunikacyjny opiera się na wymianie przez klientów(za pośrednictwem serwera) danych o stałej strukturze. Każda informacja przesyłana przez klienta do serwera oraz przez serwer do klienta ma postać: 
+‘AKCJA’ (1 bajt) + ewentualne dane + ‘X’,
+gdzie znak X jest znakiem końca danych.  W miejscu znaku Akcja mogą pojawić się następujące znaki:
+•	‘b’  – oznacza prawidłowo zakończony ruch strony czarnej i przekazanie ruchu do strony białej
+•	‘w’ - oznacza prawidłowo zakończony ruch strony białej i przekazanie ruchu do strony czarnej
+•	‘L’ – oznacza wykrycie porażki przeciwnika i przekazanie mu tej informacji 
+•	‘S’ – oznacza poddanie się
+•	‘E’ – oznacza rozłączenie się przeciwnika (wykrywane przez serwer)
+•	‘T’ – oznacza iż gracz od 3 ruchów był pasywny co skutkuje jego przegraną.
+
