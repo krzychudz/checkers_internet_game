@@ -6,7 +6,7 @@ Sieci komputerowe – internetowa gra warcaby
 
 Protokół komunikacyjny opiera się na wymianie przez klientów(za pośrednictwem serwera) danych o stałej strukturze. 
 Każda informacja przesyłana przez klienta do serwera oraz przez serwer do klienta ma postać: 
-    <b>‘ZNAK’ (1 bajt) + ewentualne dane + ‘X’</b>,
+     ‘ZNAK’ (1 bajt) + ewentualne dane(64 bajty) + ‘X’,
 gdzie znak X jest znakiem końca danych.  W miejscu 'ZNAK' mogą pojawić się następujące znaki:
 
     •	‘b’  – oznacza prawidłowo zakończony ruch strony czarnej i przekazanie ruchu do strony białej
@@ -14,13 +14,88 @@ gdzie znak X jest znakiem końca danych.  W miejscu 'ZNAK' mogą pojawić się n
     •	‘L’ – oznacza wykrycie porażki przeciwnika i przekazanie mu tej informacji 
     •	‘S’ – oznacza poddanie się
     •	‘E’ – oznacza rozłączenie się przeciwnika (wykrywane przez serwer)
-    •	‘T’ – oznacza iż gracz od 3 ruchów był pasywny co skutkuje jego przegraną.
+    •	‘T’ – oznacza iż gracz był przez 3 ruchy pasywny co skutkuje jego przegraną.
     
-W miejscu 'ewentualne dane' zazwyczaj znajduje się ciąg bajtów reprezentujący aktualny stan planszy. Stan planszy trzymany jest jako tablica 2 wymiarowa 8x8. Gdzie:
-•	0 – oznacza piona czarnego na danej pozycji
-•	1 – czarna dama
-•	2 – pole puste 
-•	3 – biały pion
-•	4 – biała dama
+W miejscu 'ewentualne dane' znajduje się ciąg bajtów reprezentujący aktualny stan planszy. 
+Stan planszy trzymany jest jako tablica 2 wymiarowa 8x8. Gdzie:
+    •	0 – oznacza piona czarnego na danej pozycji
+    •	1 – czarna dama
+    •	2 – pole puste 
+    •	3 – biały pion
+    •	4 – biała dama
+    
+Zanim dane zostaną przekazane od jednego do drugiego klienta, 
+są one sprawdzane przez serwer tak aby mógł on odpowiednio zareagować 
+np. na fakt zakończenia gry (przekazanie informacji do drugiego gracza oraz zwolnienie zasobów).
+
+2. Opis implementacji:
+    •	Serwer:
+    Serwer oczekuje na graczy. Co każdego drugiego gracza tworzy nowy wątek „umieszczając” tam dwóch graczy.
+    Na początku odsyła informację odnośnie stron jakimi grają poszczególni gracze. 
+    Następnie oczekuje na informację od strony białej.
+    Po odebraniu danych analizuje je i zgodnie z nimi podejmuje odpowiednie działania takie jak przekazanie danych do przeciwnika, 
+    ustawienie flagi kończącej rozgrywkę w przypadku przegranej lub poddania się któreś ze stron. 
+    Następnie oczekuje danych od drugiej strony i tak w aż do momentu wykrycia stanu końca gry, 
+    który oznacza iż wątek musi zwolnić zajęte zasoby oraz zakończyć się.
+    
+    •	Klient:
+    W momencie gdy ruch należy do przeciwnika aplikacja klienta oczekuje na dane od serwera. 
+    Dzieje się to w osobnym wątku, także cała aplikacja jest aktywna. Zablokowana jest oczywiście możliwość wykonywania ruchów. 
+    Gdy klient odbiera dane od serwera analizuje je pod kątem podjęcia odpowiednich akcji. 
+    Gdy serwer informuje klienta o poprawnie wykonanym ruchu przeciwnika, aplikacja aktualizuje stan planszy oraz zezwala na ruch.
+    W momencie innych komunikatów takich jak przegrana, problem z połączeniem przeciwnika, wyświetlany jest odpowiedni komunikat. 
+    Po wysyłaniu informacji o zakończeniu ruchu aplikacja przechodzi ponownie w stan oczekiwania na dane od serwera. 
+    Odbierania oraz wysyłanie danych realizowane jest za pośrednictwem wątków. Przed wysłaniem jakichkolwiek danych do serwera klient analizuje ich poprawność,
+    np. czy dany ruch można w ogóle wykonać.
+    
+    Aplikacja klient składa się z wielu plików zatem opiszę krótko te według mnie najważniejsze:
+    
+	PlayState.h / PlayState.cpp – Tutaj zawarta jest klasa odpowiedzialna za właściwą grę. 
+	Tutaj znajduję się wątki do wysyłania i odbierania danych, analizowane są wychodzące oraz przychodzące dane.
+
+	Pawn.h / Pawn.cpp – Tutaj znajduje się klasa odpowiedzialna za całą logikę gry. 
+	Klasa ta dostarcza wielu metod które mają za zadanie sprawdzić czy aktualny ruch jest poprawny czy też nie.
+
+	PreGameState.h / PreGameState.cpp – Klasa odpowiedzialna za nawiązanie połączenia z serwerem. 
+
+	ServerErrorState.h / ServerErrorState.cpp – klasa odpowiedzialna za prezentację błędów, które są skutkiem np. zerwania połączenia z serwerem. 
+	
+3. Opis uruchomienia:
+    •	Serwer:
+    Plik warcaby_server.c z folderu warcaby-serwer 
+    skompilować za pomocą narzędzia gcc. Następnie plik wynikowy uruchomić.
+    Serwer jest gotowy do działania.
+    
+    •	Klient
+    Aplikacja klienta korzysta z biblioteki wspomagającej pisanie aplikacji multimedialnych o nazwie SFML. 
+    Do projektu została ona dołączona ale w wersji skompilowanej do używania w środowisku Visual Studio 2017, 
+    zatem uruchomienie projektu w innym środowisku wiąże się z pobraniem źródeł biblioteki ze strony https://www.sfml-dev.org/ oraz ich ręczną kompilację. 
+    Najlepiej uruchomić projekt w sposób podany poniżej: 
+    
+    Uruchomić plik Warcaby-klient.sln znajdujący się w folderze Warcaby-klient za pomocą środowiska Microsoft Visual Studio 2017.
+    W folderze Warcaby-klient/Warcaby-klient uzupełnić pilk ip_address.txt wpisując w pierwszej linijce adres IP maszyny na której uruchomiony został serwer.
+    Nacisnąć klawisz F5 lub Debugowanie->rozpocznij debugowanie. 
+    
+    W ostateczności gdy ten sposób nie zadziała (Visual Studio miewa swoje humory) 
+    należy po prostu wejść w folder Release (w tym samym folderze w którym znajduje się plik .sln) 
+    i uruchomić już skompilowaną, najnowszą wersję klienta. Przed uruchomieniem uzupełnić ip_address.txt.
+    
+    W menu aplikacji poruszamy się za pomocą strzałek w górę lub w dół i zatwierdzamy nasz wybór klawiszem Enter. 
+    Podczas gry używamy myszki, wybieramy piona którego chcemy przesunąć klikając na niego (zostanie otoczony czerwoną ramką), 
+    następnie wybieramy pole na które chcemy go przesunąć także klikając na nie lewym przyciskiem myszy. 
+    Kiedy ruch należy do nas po prawej stronie wyświetlany jest napis „Your Turn”, 
+    oraz pracuje zegar który odlicza pozostały czas na wykonanie ruchu.
+    Gdy ruchu nie można wykonać nasz pionek zostaje na poprzedniej pozycji. 
+    
+    UWAGA: 
+    w aplikacji zostały zaimplementowane także przymusowe bicia tak jak w prawdziwych warcabach, 
+    zatem jeżeli gdzieś na planszy jest możliwe wykonanie bicia to taki ruch trzeba zrealizować i aplikacja żadnego innego nie pozwoli wykonać.  
+    Działają także bicia wielokrotne. Gdy wykonamy bicie i aplikacja twierdzi że nadal ruch należy do nas oznacza to, że danym pionem możemy wykonać kolejne bicie 
+    i trzeba to zrobić.
+
+
+
+
+
 
 
