@@ -22,7 +22,7 @@ Map::~Map()
 }
 
 /*
-	Metoda klasy Map rysuj¹ca planszê
+	Metoda rysuj¹ca planszê
 	Parametry: RenderWindow *wnd - wskaŸnik na okno na którym bêdzie rysowana plansza
 */
 
